@@ -79,7 +79,7 @@ public class BulkDataUploadControllerTest {
 				"BBB,BBB,ara,TRUE\r\n" +
 				"DDD,DDD,eng,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("files", "gender.csv", "multipart/form-data", content.getBytes());
-		mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","masterdata"));
+		mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","masterdata"));
 
 	}
 	
@@ -89,7 +89,7 @@ public class BulkDataUploadControllerTest {
 	@WithUserDetails("global-admin")
 	public void shouldGetTransactionDetailsForId() throws Exception {
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.get("/bulkupload/transcation/1234")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.get("/v1/admin/bulkupload/transcation/1234")).andReturn(),
 				null);
 
 	}
@@ -98,7 +98,7 @@ public class BulkDataUploadControllerTest {
 	@WithUserDetails("global-admin")
 	public void testGetTransactionDetailFail() throws Exception {
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.get("/bulkupload/transcation/12")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.get("/v1/admin/bulkupload/transcation/12")).andReturn(),
 				"ADMN-BLK-TRNSCTNS-001");
 
 	}
@@ -108,7 +108,7 @@ public class BulkDataUploadControllerTest {
 	@WithUserDetails("global-admin")
 	public void testGetTransactionDetailSuccess() throws Exception {
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.get("/bulkupload/getAllTransactions")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.get("/v1/admin/bulkupload/getAllTransactions")).andReturn(),
 				null);
 
 	}
@@ -122,7 +122,7 @@ public class BulkDataUploadControllerTest {
 				"BBB,BBB,eng,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("data", "filename.txt", "multipart/form-data", content.getBytes());
 		AdminDataUtil.checkErrorResponse(
-				mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","masterdata")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","masterdata")).andReturn(),
 				"ADM-BLK-007");
 
 	}
@@ -136,7 +136,7 @@ public class BulkDataUploadControllerTest {
 				"BBB,BBB,eng,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("data", "filename.txt", "text/plain", content.getBytes());
 		AdminDataUtil.checkErrorResponse(
-				mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","masterdataa")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","masterdataa")).andReturn(),
 				"KER-MSD-999");
 
 	}
@@ -150,7 +150,7 @@ public class BulkDataUploadControllerTest {
 				"BBB,BBB,eng,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("data", "gender.csv", "text/plain", content.getBytes());
 		AdminDataUtil.checkErrorResponse(
-				mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","insertt").param("category","masterdata")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","insertt").param("category","masterdata")).andReturn(),
 				"KER-MSD-999");
 
 	}
@@ -164,7 +164,7 @@ public class BulkDataUploadControllerTest {
 				"BBC,BBB,eng,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("data", "gender.xlsx", "text/plain", content.getBytes());
 		AdminDataUtil.checkErrorResponse(
-				mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","insertt").param("category","masterdata")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","insertt").param("category","masterdata")).andReturn(),
 				"KER-MSD-999");
 
 	}
@@ -178,7 +178,7 @@ public class BulkDataUploadControllerTest {
 				"BCY,BBB,eng,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("data", "gender.xls", "text/plain", content.getBytes());
 		AdminDataUtil.checkErrorResponse(
-				mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","insertt").param("category","masterdata")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","insertt").param("category","masterdata")).andReturn(),
 				"KER-MSD-999");
 
 	}
@@ -192,7 +192,7 @@ public class BulkDataUploadControllerTest {
 				"BBB,BBB,eng,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("data", "gender.csv", "text/plain", content.getBytes());
 		AdminDataUtil.checkErrorResponse(
-				mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","packet")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","packet")).andReturn(),
 				"ADM-BLK-006");
 
 	}
@@ -206,7 +206,7 @@ public class BulkDataUploadControllerTest {
 				"BBB,BBB,eng,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("data", "gender.xlsx", "text/plain", content.getBytes());
 		AdminDataUtil.checkErrorResponse(
-				mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","packet")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","packet")).andReturn(),
 				"ADM-BLK-006");
 
 	}
@@ -220,7 +220,7 @@ public class BulkDataUploadControllerTest {
 				"BBB,BBB,eng,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("data", "gender.xls", "text/plain", content.getBytes());
 		AdminDataUtil.checkErrorResponse(
-				mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","packet")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","packet")).andReturn(),
 				"ADM-BLK-006");
 
 	}
@@ -234,7 +234,7 @@ public class BulkDataUploadControllerTest {
 				"BBB,BBB,eng,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("files", "gender.csv", "multipart/form-data", content.getBytes());
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","masterdata")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","masterdata")).andReturn(),
 				null);
 
 	}
@@ -247,7 +247,7 @@ public class BulkDataUploadControllerTest {
 				"BBB,AAA,ara,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("files", "gender.csv", "multipart/form-data", content.getBytes());
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","update").param("category","masterdata")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","update").param("category","masterdata")).andReturn(),
 				null);
 
 	}
@@ -260,7 +260,7 @@ public class BulkDataUploadControllerTest {
 				"BBB,AAA,ara,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("files", "gender.csv", "multipart/form-data", content.getBytes());
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","delete").param("category","masterdata")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","delete").param("category","masterdata")).andReturn(),
 				null);
 	}
 
@@ -268,7 +268,7 @@ public class BulkDataUploadControllerTest {
 	@WithUserDetails("global-admin")
 	public void getBulkUploadAllTransactions_Success() throws Exception {
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.get("/bulkupload/getAllTransactions")).andReturn(), null);
+				mockMvc.perform(MockMvcRequestBuilders.get("/v1/admin/bulkupload/getAllTransactions")).andReturn(), null);
 
 	}
 
@@ -280,7 +280,7 @@ public class BulkDataUploadControllerTest {
 				"BBB,AAA,ara,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("files", "gender.zip", "multipart/form-data", content.getBytes());
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","packet")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","packet")).andReturn(),
 				null);
 	}
 	
@@ -294,7 +294,7 @@ public class BulkDataUploadControllerTest {
 				"AABA,AAA,ara,TRUE\r\n" +
 				"BBCB,BBB,eng,TRUE";
 		MockMultipartFile gender = new MockMultipartFile("files", "gender.csv", "multipart/form-data", content.getBytes());
-		MvcResult response = mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","masterdata")).andReturn();
+		MvcResult response = mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(gender).param("tableName","gender").param("operation","insert").param("category","masterdata")).andReturn();
 		String transaction = response.getResponse().getContentAsString();
 		JSONParser parser = new JSONParser();
 		JSONObject json = (JSONObject) parser.parse(transaction);
@@ -310,7 +310,7 @@ public class BulkDataUploadControllerTest {
 				"Some Random Words,Test,eng,TRUE,FALSE\r\n";
 		MockMultipartFile blocklisted_words = new MockMultipartFile("data", "filename.csv", "multipart/form-data", content.getBytes());
 		AdminDataUtil.checkErrorResponse(
-				mockMvc.perform(MockMvcRequestBuilders.multipart("/bulkupload").file(blocklisted_words).param("tableName","blocklisted_words").param("operation","insert").param("category","masterdata")).andReturn(),
+				mockMvc.perform(MockMvcRequestBuilders.multipart("/v1/admin/bulkupload").file(blocklisted_words).param("tableName","blocklisted_words").param("operation","insert").param("category","masterdata")).andReturn(),
 				"ADM-BLK-007");
 
 	}

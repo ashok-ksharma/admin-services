@@ -86,7 +86,7 @@ public class PacketStatusIntegrationTest {
 		.andRespond(withSuccess().body(POSITIVE_RESPONSE_REG_PROC));
 		
 		mockMvc.perform(
-				get("/packetstatusupdate").param("rid", "10002101080001920220117114148"))
+				get("/v1/admin/packetstatusupdate").param("rid", "10002101080001920220117114148"))
 				.andExpect(status().isOk());
 	}
 	
@@ -105,7 +105,7 @@ public class PacketStatusIntegrationTest {
 				.expect(requestTo(packetUpdateStatusUrl + "/1000012232223243224234"))
 		.andRespond(withStatus(HttpStatus.FORBIDDEN).body(objectMapper.writeValueAsString(response)));
 		mockMvc.perform(
-				get("/packetstatusupdate").param("rid","1000012232223243224234")).andExpect(status().is5xxServerError());
+				get("/v1/admin/packetstatusupdate").param("rid","1000012232223243224234")).andExpect(status().is5xxServerError());
 	}
 
 	@Test
@@ -115,7 +115,7 @@ public class PacketStatusIntegrationTest {
 				.expect(requestTo(packetUpdateStatusUrl + "/1000012232223243224234"))
 				.andRespond(withStatus(HttpStatus.SERVICE_UNAVAILABLE));
 		mockMvc.perform(
-				get("/packetstatusupdate").param("rid","1000012232223243224234")).andExpect(status().is5xxServerError());
+				get("/v1/admin/packetstatusupdate").param("rid","1000012232223243224234")).andExpect(status().is5xxServerError());
 	}
 	
 	@Test
@@ -133,7 +133,7 @@ public class PacketStatusIntegrationTest {
 				.andRespond(withSuccess().body(objectMapper.writeValueAsBytes(response)));
 		
 		mockMvc.perform(
-				get("/packetstatusupdate").param("rid","1000012232223243224234"))
+				get("/v1/admin/packetstatusupdate").param("rid","1000012232223243224234"))
 				.andExpect(status().is5xxServerError());
 	}
 
@@ -152,7 +152,7 @@ public class PacketStatusIntegrationTest {
 				.andRespond(withSuccess().body(objectMapper.writeValueAsBytes(response)));
 
 		mockMvc.perform(
-						get("/packetstatusupdate").param("rid","1000012232223243224234"))
+						get("/v1/admin/packetstatusupdate").param("rid","1000012232223243224234"))
 				.andExpect(status().is5xxServerError());
 	}
 
@@ -171,7 +171,7 @@ public class PacketStatusIntegrationTest {
 				.andRespond(withSuccess().body(objectMapper.writeValueAsBytes(response)));
 
 		mockMvc.perform(
-						get("/packetstatusupdate").param("rid","1000012232223243224234"))
+						get("/v1/admin/packetstatusupdate").param("rid","1000012232223243224234"))
 				.andExpect(status().is5xxServerError());
 	}
 
@@ -190,7 +190,7 @@ public class PacketStatusIntegrationTest {
 				.andRespond(withSuccess().body(objectMapper.writeValueAsBytes(response)));
 
 		mockMvc.perform(
-						get("/packetstatusupdate").param("rid","1000012232223243224234"))
+						get("/v1/admin/packetstatusupdate").param("rid","1000012232223243224234"))
 				.andExpect(status().is5xxServerError());
 	}
 	
@@ -210,7 +210,7 @@ public class PacketStatusIntegrationTest {
 		.andRespond(withStatus(HttpStatus.FORBIDDEN).body(objectMapper.writeValueAsString(response)));
 		
 		mockMvc.perform(
-				get("/packetstatusupdate").param("rid","1000012232223243224234")).andExpect(status().isInternalServerError());
+				get("/v1/admin/packetstatusupdate").param("rid","1000012232223243224234")).andExpect(status().isInternalServerError());
 		
 		
 	}
@@ -225,7 +225,7 @@ public class PacketStatusIntegrationTest {
 				.expect(requestTo(packetUpdateStatusUrl + "/1000012232223243224234"))
 		.andRespond(withSuccess().body(PARSE_ERROR_RESPONSE_REG_PROC));
 
-		MvcResult mvcResult = mockMvc.perform(get("/packetstatusupdate")
+		MvcResult mvcResult = mockMvc.perform(get("/v1/admin/packetstatusupdate")
 				.param("rid","1000012232223243224234")).andExpect(status().is5xxServerError()).andReturn();
 
 		ResponseWrapper<PacketStatusUpdateResponseDto> responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(),
@@ -259,7 +259,7 @@ public class PacketStatusIntegrationTest {
 		.andRespond(withSuccess().body(objectMapper.writeValueAsString(str)));
 
 		MvcResult mvcResult = mockMvc.perform(
-				get("/packetstatusupdate").param("rid","1000012232223243224234")).andReturn();
+				get("/v1/admin/packetstatusupdate").param("rid","1000012232223243224234")).andReturn();
 		ResponseWrapper<PacketStatusUpdateResponseDto> responseWrapper = objectMapper.readValue(mvcResult.getResponse().getContentAsString(),
 				new TypeReference<ResponseWrapper<PacketStatusUpdateResponseDto>>() {});
 		Assert.assertNotNull(responseWrapper.getErrors());

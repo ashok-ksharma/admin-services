@@ -38,9 +38,6 @@ ENV is_glowroot_env=${is_glowroot}
 # environment variable to pass artifactory url, at docker runtime
 ENV artifactory_url_env=${artifactory_url}
 
-# environment variable to pass iam_adapter url, at docker runtime
-ENV iam_adapter_url_env=${iam_adapter_url}
-
 # can be passed during Docker build as build time environment for github branch to pickup configuration from.
 ARG container_user=mosip
 
@@ -64,12 +61,6 @@ WORKDIR /home/${container_user}
 
 ENV work_dir=/home/${container_user}
 
-ARG loader_path=${work_dir}/additional_jars/
-
-RUN mkdir -p ${loader_path}
-
-ENV loader_path_env=${loader_path}
-
 COPY ./target/admin-service-*.jar admin-service.jar
 
 # change permissions of file inside working dir
@@ -80,6 +71,5 @@ USER ${container_user_uid}:${container_user_gid}
 
 EXPOSE 8098
 
-CMD wget -q --show-progress "${iam_adapter_url_env}" -O "${loader_path_env}"/kernel-auth-adapter.jar; \
-    java -XX:-UseG1GC -XX:+ExplicitGCInvokesConcurrent -XX:-UseParallelGC -XX:+UseZGC -XX:+ZGenerational -XX:-UseShenandoahGC -XX:MaxGCPauseMillis=200  -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:+UseCompressedOops \
-    -jar -Dloader.path="${loader_path_env}"  --add-modules=ALL-SYSTEM --add-opens=java.base/java.lang=ALL-UNNAMED -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}" -Dspring.cloud.config.uri="${spring_config_url_env}" admin-service.jar; \
+CMD java -XX:-UseG1GC -XX:+ExplicitGCInvokesConcurrent -XX:-UseParallelGC -XX:+UseZGC -XX:+ZGenerational -XX:-UseShenandoahGC -XX:MaxGCPauseMillis=200  -XX:+UnlockExperimentalVMOptions -XX:+UseStringDeduplication -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8 -XX:+UseCompressedOops \
+    -jar --add-modules=ALL-SYSTEM --add-opens=java.base/java.lang=ALL-UNNAMED -Dspring.cloud.config.label="${spring_config_label_env}" -Dspring.profiles.active="${active_profile_env}" -Dspring.cloud.config.uri="${spring_config_url_env}" admin-service.jar; \

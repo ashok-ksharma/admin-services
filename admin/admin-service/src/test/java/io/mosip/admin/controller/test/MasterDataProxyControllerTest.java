@@ -73,7 +73,7 @@ public class MasterDataProxyControllerTest {
         mockRestServiceServer.expect(requestTo(reqUrl))
                 .andRespond(withSuccess().body(response).contentType(MediaType.APPLICATION_JSON));
         AdminDataUtil.checkResponse(
-                mockMvc.perform(MockMvcRequestBuilders.post("/masterdata/machinespecifications").contentType(MediaType.APPLICATION_JSON).content(request)).andReturn(),
+                mockMvc.perform(MockMvcRequestBuilders.post("/v1/admin/masterdata/machinespecifications").contentType(MediaType.APPLICATION_JSON).content(request)).andReturn(),
                 null);
     }
     @Test
@@ -85,7 +85,7 @@ public class MasterDataProxyControllerTest {
         mockRestServiceServer.expect(requestTo(reqUrl))
                 .andRespond(withSuccess().body(response).contentType(MediaType.APPLICATION_JSON));
         AdminDataUtil.checkResponse(
-                mockMvc.perform(MockMvcRequestBuilders.put("/masterdata/machinespecifications").contentType(MediaType.APPLICATION_JSON).content(request)).andReturn(),
+                mockMvc.perform(MockMvcRequestBuilders.put("/v1/admin/masterdata/machinespecifications").contentType(MediaType.APPLICATION_JSON).content(request)).andReturn(),
                 null);
     }
     @Test
@@ -97,7 +97,7 @@ public class MasterDataProxyControllerTest {
         mockRestServiceServer.expect(requestTo(reqUrl))
                 .andRespond(withSuccess().body(response).contentType(MediaType.APPLICATION_JSON));
         AdminDataUtil.checkResponse(
-                mockMvc.perform(MockMvcRequestBuilders.patch("/masterdata/machinespecifications?id=59331a62-cf13-45c0-a564-d5c555d8de75&isActive=true").contentType(MediaType.APPLICATION_JSON).content(request)).andReturn(),
+                mockMvc.perform(MockMvcRequestBuilders.patch("/v1/admin/masterdata/machinespecifications?id=59331a62-cf13-45c0-a564-d5c555d8de75&isActive=true").contentType(MediaType.APPLICATION_JSON).content(request)).andReturn(),
                 null);
     }
 
@@ -110,7 +110,7 @@ public class MasterDataProxyControllerTest {
         mockRestServiceServer.expect(requestTo(reqUrl))
                 .andRespond(withSuccess().body(response).contentType(MediaType.APPLICATION_JSON));
         AdminDataUtil.checkResponse(
-                mockMvc.perform(MockMvcRequestBuilders.delete("/masterdata/machinespecifications/59331a62-cf13-45c0-a564-d5c555d8de75").contentType(MediaType.APPLICATION_JSON).content(request)).andReturn(),
+                mockMvc.perform(MockMvcRequestBuilders.delete("/v1/admin/masterdata/machinespecifications/59331a62-cf13-45c0-a564-d5c555d8de75").contentType(MediaType.APPLICATION_JSON).content(request)).andReturn(),
                 null);
     }
     @Test
@@ -122,14 +122,14 @@ public class MasterDataProxyControllerTest {
         mockRestServiceServer.expect(requestTo(reqUrl))
                 .andRespond(withSuccess().body(response).contentType(MediaType.APPLICATION_JSON));
         AdminDataUtil.checkResponse(
-                mockMvc.perform(MockMvcRequestBuilders.get("/masterdata/machinespecifications/all?pageNumber=0&pageSize=10&sortBy=createdDateTime&orderBy=desc").contentType(MediaType.APPLICATION_JSON).content(request)).andReturn(),
+                mockMvc.perform(MockMvcRequestBuilders.get("/v1/admin/masterdata/machinespecifications/all?pageNumber=0&pageSize=10&sortBy=createdDateTime&orderBy=desc").contentType(MediaType.APPLICATION_JSON).content(request)).andReturn(),
                 null);
     }
     @Test
     @WithUserDetails("global-admin")
     public void t006getMethodMasterdataProxyFailTest() throws Exception {
         AdminDataUtil.checkErrorResponse(
-                mockMvc.perform(MockMvcRequestBuilders.get("/masterdata/machinespecifications/all?pageNumber=0&pageSize=10&sortBy=createdDateTime&orderBy=desc").contentType(MediaType.APPLICATION_JSON).content(request)).andReturn(),
+                mockMvc.perform(MockMvcRequestBuilders.get("/v1/admin/masterdata/machinespecifications/all?pageNumber=0&pageSize=10&sortBy=createdDateTime&orderBy=desc").contentType(MediaType.APPLICATION_JSON).content(request)).andReturn(),
                 "KER-MSD-500");
     }
 

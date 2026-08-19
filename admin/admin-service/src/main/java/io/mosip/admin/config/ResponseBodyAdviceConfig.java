@@ -23,7 +23,14 @@ import io.mosip.kernel.core.http.ResponseWrapper;
 import io.mosip.kernel.core.logger.spi.Logger;
 import io.mosip.kernel.core.util.EmptyCheckUtils;
 
-@RestControllerAdvice
+/**
+ * Scoped to admin-service's own controller packages. It was
+ * previously unscoped, i.e. applied to every controller in the context; with admin-service
+ * as the only service present these two packages are exactly that set, so today's behaviour
+ * is unchanged. The scope stops it from re-wrapping masterdata, syncdata and hotlist
+ * responses as those services are folded in.
+ */
+@RestControllerAdvice(basePackages = { "io.mosip.admin", "io.mosip.kernel.authcodeflowproxy" })
 public class ResponseBodyAdviceConfig implements ResponseBodyAdvice<ResponseWrapper<?>> {
 
 	@Autowired

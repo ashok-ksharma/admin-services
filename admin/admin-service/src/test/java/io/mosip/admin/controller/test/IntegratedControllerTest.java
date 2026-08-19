@@ -187,7 +187,7 @@ public class IntegratedControllerTest {
 				"REGISTRATION_CLIENT", "NEW", "APPROVED")).thenReturn(bulkDataResponseDto);
 		*/
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.get("/bulkupload/transcation/123455")).andReturn(), "ADMN-BLK-TRNSCTNS-001");
+				mockMvc.perform(MockMvcRequestBuilders.get("/v1/admin/bulkupload/transcation/123455")).andReturn(), "ADMN-BLK-TRNSCTNS-001");
 
 	}
 
@@ -201,7 +201,7 @@ public class IntegratedControllerTest {
 				.andRespond(withSuccess().body("{\"id\":null,\"version\":null,\"responsetime\":\"2022-01-04T18:56:45.275Z\",\"metadata\":null,\"response\":[],\"errors\":null}"));
 
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.get("/packetstatusupdate")
+				mockMvc.perform(MockMvcRequestBuilders.get("/v1/admin/packetstatusupdate")
 						.param("rid", "10002101080001920220117114148")).andReturn(), null);
 
 	}
@@ -221,7 +221,7 @@ public class IntegratedControllerTest {
 		searchInfoReq.getRequest().setSort(new ArrayList<SortInfo>());
 
 		AdminDataUtil.checkResponse(
-				(mockMvc.perform(MockMvcRequestBuilders.post("/lostRid").contentType(MediaType.APPLICATION_JSON)
+				(mockMvc.perform(MockMvcRequestBuilders.post("/v1/admin/lostRid").contentType(MediaType.APPLICATION_JSON)
 						.content(mapper.writeValueAsString(searchInfoReq))).andReturn()),
 				"ADMN-LRID-001");
 
@@ -231,7 +231,7 @@ public class IntegratedControllerTest {
 	public void t004getTranscationDetailTest() throws Exception {
 		Mockito.when(bulkDataOperation.findTransactionById(Mockito.anyString())).thenReturn(bulkUploadTranscation);
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.get("/bulkupload/transcation/12345678")).andReturn(), null);
+				mockMvc.perform(MockMvcRequestBuilders.get("/v1/admin/bulkupload/transcation/12345678")).andReturn(), null);
 
 	}
 

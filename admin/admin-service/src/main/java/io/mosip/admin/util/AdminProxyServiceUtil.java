@@ -1,5 +1,6 @@
 package io.mosip.admin.util;
 
+import io.mosip.admin.config.ApiPathPrefixConfig;
 import io.mosip.admin.packetstatusupdater.exception.AdminServiceException;
 import io.mosip.admin.packetstatusupdater.util.AuditUtil;
 import io.mosip.admin.packetstatusupdater.util.EventEnum;
@@ -38,18 +39,43 @@ public class AdminProxyServiceUtil {
 		requestUrl = URLDecoder.decode(requestUrl);
 		String url = null;
 		URI uri = null;
+		String relativePath = stripAdminPrefix(request, requestUrl);
 		if (query != null) {
 			String decodedQuery = URLDecoder.decode(query);
-			url = baseUrl + requestUrl.replace(request.getContextPath() , "").strip().toString();
+			url = baseUrl + relativePath;
 			uri = UriComponentsBuilder.fromHttpUrl(url).query(decodedQuery).build().toUri();
 			logger.info("Requested Url is: {}" , uri);
 		} else {
-			url = baseUrl + requestUrl.replace(request.getContextPath(), "").strip().toString();
+			url = baseUrl + relativePath;
 			uri = UriComponentsBuilder.fromHttpUrl(url).build().toUri();
 
 			logger.info("Requested Url is: {}", uri);
 		}
 		return uri;
+	}
+
+	/**
+	 * Turns an inbound request URI into the path to append to the downstream base URL.
+	 *
+	 * <p>
+	 * This used to be a plain {@code requestUrl.replace(request.getContextPath(), "")}, which
+	 * worked only because admin-service ran with {@code server.servlet.context-path=/v1/admin}.
+	 * The merged application has no context-path - {@code getContextPath()} returns an empty
+	 * string and the strip becomes a no-op - so {@code /v1/admin} is now removed explicitly.
+	 * Without this, a proxied call would resolve to {@code <baseUrl>/v1/admin/masterdata/...}
+	 * instead of {@code <baseUrl>/masterdata/...}.
+	 * </p>
+	 */
+	private String stripAdminPrefix(HttpServletRequest request, String requestUrl) {
+		String path = requestUrl;
+		String contextPath = request.getContextPath();
+		if (contextPath != null && !contextPath.isEmpty() && path.startsWith(contextPath)) {
+			path = path.substring(contextPath.length());
+		}
+		if (path.startsWith(ApiPathPrefixConfig.ADMIN_PREFIX)) {
+			path = path.substring(ApiPathPrefixConfig.ADMIN_PREFIX.length());
+		}
+		return path.strip();
 	}
 
 	public HttpMethod getHttpMethodType(HttpServletRequest request) {

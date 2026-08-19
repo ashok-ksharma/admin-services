@@ -2,7 +2,7 @@ package io.mosip.admin.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.admin.bulkdataupload.entity.ApplicantUserDetailsEntity;
-import io.mosip.admin.bulkdataupload.entity.ApplicantUserDetailsRepository;
+import io.mosip.admin.bulkdataupload.repositories.ApplicantUserDetailsRepository;
 import io.mosip.admin.constant.ApplicantDetailErrorCode;
 import io.mosip.admin.dto.ApplicantDetailsDto;
 import io.mosip.admin.dto.ApplicantUserDetailsDto;

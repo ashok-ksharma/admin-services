@@ -74,7 +74,7 @@ public class KeyManagerProxyControllerTest {
 		mockRestServiceServer.expect(requestTo(baseUrl+"/v1/keymanager/generatecsr"))
 				.andRespond(withSuccess().body(response).contentType(MediaType.APPLICATION_JSON));
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.post("/keymanager/generatecsr")
+				mockMvc.perform(MockMvcRequestBuilders.post("/v1/admin/keymanager/generatecsr")
 						.contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString("string"))).andReturn(),
 				"KER-KMS-002");
 	}
@@ -94,7 +94,7 @@ public class KeyManagerProxyControllerTest {
 				.andRespond(withSuccess().body(response).contentType(MediaType.APPLICATION_JSON));
 
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.post("/keymanager/generatecsr")
+				mockMvc.perform(MockMvcRequestBuilders.post("/v1/admin/keymanager/generatecsr")
 						.contentType(MediaType.APPLICATION_JSON).content(mapper.writeValueAsString("string"))).andReturn(),
 				null);
 	}
@@ -116,7 +116,7 @@ public class KeyManagerProxyControllerTest {
 				.andRespond(withSuccess().body(response).contentType(MediaType.APPLICATION_JSON));
 
 		AdminDataUtil.checkResponse(
-				mockMvc.perform(MockMvcRequestBuilders.get("/keymanager/generatecsrcertificate?applicationId=REGISTRATION&referenceId=refID"))
+				mockMvc.perform(MockMvcRequestBuilders.get("/v1/admin/keymanager/generatecsrcertificate?applicationId=REGISTRATION&referenceId=refID"))
 						.andReturn(),
 				null);
 	}
@@ -136,7 +136,7 @@ public class KeyManagerProxyControllerTest {
 
 		AdminDataUtil
 				.checkResponse(
-						mockMvc.perform(MockMvcRequestBuilders.post("/keymanager/uploadcertificate")
+						mockMvc.perform(MockMvcRequestBuilders.post("/v1/admin/keymanager/uploadcertificate")
 								.accept(MediaType.APPLICATION_ATOM_XML.APPLICATION_JSON)
 								.content(mapper.writeValueAsString("string"))).andReturn(),
 						"KER-KMS-003");
@@ -159,7 +159,7 @@ public class KeyManagerProxyControllerTest {
 
 		AdminDataUtil
 				.checkResponse(
-						mockMvc.perform(MockMvcRequestBuilders.post("/keymanager/uploadotherdomaincertificate")
+						mockMvc.perform(MockMvcRequestBuilders.post("/v1/admin/keymanager/uploadotherdomaincertificate")
 								.accept(MediaType.APPLICATION_ATOM_XML.APPLICATION_JSON)
 								.content(mapper.writeValueAsString("temp"))).andReturn(),
 						"KER-KMS-003");

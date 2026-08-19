@@ -122,7 +122,7 @@ public class AdminControllerTest {
 				.andRespond(withSuccess().body(str).contentType(MediaType.APPLICATION_JSON));
 
 		AdminDataUtil.checkResponse(
-				(mockMvc.perform(MockMvcRequestBuilders.post("/lostRid").contentType(MediaType.APPLICATION_JSON)
+				(mockMvc.perform(MockMvcRequestBuilders.post("/v1/admin/lostRid").contentType(MediaType.APPLICATION_JSON)
 						.content(mapper.writeValueAsString(searchInfoReq))).andReturn()),
 				null);
 
@@ -141,7 +141,7 @@ public class AdminControllerTest {
 				.andRespond(withSuccess().body(biometricResponse).contentType(MediaType.APPLICATION_JSON));
 
 		AdminDataUtil.checkErrorResponse(
-				(mockMvc.perform(MockMvcRequestBuilders.get("/lostRid/details/"+"10002100800001020230223050340")).andReturn()),
+				(mockMvc.perform(MockMvcRequestBuilders.get("/v1/admin/lostRid/details/"+"10002100800001020230223050340")).andReturn()),
 				null);
 
 

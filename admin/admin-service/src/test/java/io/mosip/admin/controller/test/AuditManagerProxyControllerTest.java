@@ -100,7 +100,7 @@ public class AuditManagerProxyControllerTest {
 		mockRestServiceServer.expect(requestTo(auditUrl)).andRespond(withSuccess());
 		AdminDataUtil
 				.checkResponse(mockMvc
-						.perform(MockMvcRequestBuilders.post("/auditmanager/log")
+						.perform(MockMvcRequestBuilders.post("/v1/admin/auditmanager/log")
 								.contentType(MediaType.APPLICATION_JSON)
 								.content(mapper.writeValueAsString(requestDto))
 								.header(HttpHeaders.ORIGIN, "dev.mosip.io")
@@ -117,7 +117,7 @@ public class AuditManagerProxyControllerTest {
 		mockRestServiceServer.expect(requestTo(auditUrl + "s"))
 				.andRespond(withSuccess().body(str).contentType(MediaType.APPLICATION_JSON));
 
-		mockMvc.perform(MockMvcRequestBuilders.post("/auditmanager/log").contentType(MediaType.APPLICATION_JSON)
+		mockMvc.perform(MockMvcRequestBuilders.post("/v1/admin/auditmanager/log").contentType(MediaType.APPLICATION_JSON)
 				.content(mapper.writeValueAsString(requestDto)).header(HttpHeaders.ORIGIN, "dev.mosip.io")
 				.header(HttpHeaders.REFERER, "test")).andExpect(MockMvcResultMatchers.status().is(500));
 
@@ -131,7 +131,7 @@ public class AuditManagerProxyControllerTest {
 		mockRestServiceServer.expect(requestTo(auditUrl))
 				.andRespond(withBadRequest().body(str).contentType(MediaType.APPLICATION_JSON));
 
-	MvcResult m	=mockMvc.perform(MockMvcRequestBuilders.post("/auditmanager/log")
+	MvcResult m	=mockMvc.perform(MockMvcRequestBuilders.post("/v1/admin/auditmanager/log")
 					.header(HttpHeaders.ORIGIN, "dev.mosip.io")
 					.header(HttpHeaders.REFERER, "test").contentType(MediaType.APPLICATION_JSON)
 		.content(mapper.writeValueAsString(requestDto))).andReturn();

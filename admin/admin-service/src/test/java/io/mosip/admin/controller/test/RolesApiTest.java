@@ -25,6 +25,6 @@ public class RolesApiTest {
 	@Test
 	@WithUserDetails("zonal-admin")
 	public void testRequiredRoles() throws Exception {
-		mockMvc.perform(MockMvcRequestBuilders.get("/roles")).andExpect(MockMvcResultMatchers.status().isOk());
+		mockMvc.perform(MockMvcRequestBuilders.get("/v1/admin/roles")).andExpect(MockMvcResultMatchers.status().isOk());
 	}
 }

@@ -9,11 +9,19 @@ import javax.validation.Validator;
 import org.mockito.Mockito;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
+import org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration;
+import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration;
 import org.springframework.context.annotation.*;
 
-@SpringBootApplication
+// Mirrors AdminBootApplication: "io.mosip.kernel.dataaccess.*" is dropped so kernel's
+// HibernateDaoConfig cannot register a competing dataSource/entityManagerFactory alongside
+// MasterDataSourceConfig, and datasource auto-configuration is excluded for the same reason.
+@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
+		DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
 @ComponentScan(value = {"io.mosip.admin.*","io.mosip.commons.*","io.mosip.kernel.biometrics.*",
-		 "io.mosip.kernel.idvalidator.rid.*","io.mosip.kernel.dataaccess.*"},excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ,
+		 "io.mosip.kernel.idvalidator.rid.*"},
+		excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ,
 		pattern = "io.mosip.kernel.lkeymanager.repository.*"))
 public class TestBootApplication {
 	public static void main(String[] args) {

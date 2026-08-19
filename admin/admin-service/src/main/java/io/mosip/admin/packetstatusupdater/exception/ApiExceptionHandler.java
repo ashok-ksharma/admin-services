@@ -43,7 +43,16 @@ import io.mosip.kernel.core.util.EmptyCheckUtils;
  *
  * @since 1.0.0
  */
-@RestControllerAdvice
+/**
+ * Scoped to admin-service's own controller packages. It was
+ * previously unscoped and, being HIGHEST_PRECEDENCE with a catch-all
+ * {@code Exception.class} handler, would otherwise take over error handling for every other
+ * merged service. The two packages listed are exactly the controllers admin-service
+ * component-scans today - including the authcodeflowproxy login endpoints, whose errors this
+ * handler already intercepts ahead of AuthCodeProxyExceptionHandler - so behaviour is
+ * unchanged at this step.
+ */
+@RestControllerAdvice(basePackages = { "io.mosip.admin", "io.mosip.kernel.authcodeflowproxy" })
 @Order(Ordered.HIGHEST_PRECEDENCE)
 public class ApiExceptionHandler {
 
