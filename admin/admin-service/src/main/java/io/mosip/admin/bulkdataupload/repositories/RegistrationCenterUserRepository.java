@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.jpa.repository.Query;
 
 import io.mosip.admin.bulkdataupload.entity.RegistrationCenterUser;
-import io.mosip.admin.bulkdataupload.entity.id.RegistrationCenterUserID;
+import io.mosip.kernel.masterdata.entity.id.RegistrationCenterUserID;
 import io.mosip.kernel.core.dataaccess.spi.repository.BaseRepository;
 
 /**

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.mosip.admin.bulkdataupload.entity.RegistrationCenterMachineDevice;
-import io.mosip.admin.bulkdataupload.entity.id.RegistrationCenterMachineDeviceID;
+import io.mosip.kernel.masterdata.entity.id.RegistrationCenterMachineDeviceID;
 import io.mosip.kernel.core.dataaccess.spi.repository.BaseRepository;
 
 /**

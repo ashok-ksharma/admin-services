@@ -6,7 +6,8 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
-import io.mosip.admin.bulkdataupload.entity.id.RegistrationCenterUserID;
+import io.mosip.kernel.masterdata.entity.id.RegistrationCenterUserID;
+import io.mosip.kernel.masterdata.entity.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

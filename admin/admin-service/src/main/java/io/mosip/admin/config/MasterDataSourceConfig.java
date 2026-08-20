@@ -54,7 +54,7 @@ import jakarta.persistence.EntityManagerFactory;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-		basePackages = { "io.mosip.admin.bulkdataupload.repositories" },
+		basePackages = { "io.mosip.kernel.masterdata.repository", "io.mosip.admin.bulkdataupload.repositories" },
 		entityManagerFactoryRef = "masterEntityManagerFactory",
 		transactionManagerRef = "masterTxManager",
 		repositoryBaseClass = HibernateRepositoryImpl.class)
@@ -62,8 +62,25 @@ public class MasterDataSourceConfig {
 
 	private static final Logger logger = LoggerFactory.getLogger(MasterDataSourceConfig.class);
 
-	/** Entity packages mapped onto the mosip_master datasource.*/
-	static final String[] MASTER_ENTITY_PACKAGES = { "io.mosip.admin.bulkdataupload.entity" };
+	/**
+	 * Entity packages mapped onto the mosip_master datasource.
+	 *
+	 * <p>
+	 * masterdata's package holds the <em>canonical</em> entity set: admin's ~59 duplicate
+	 * classes were deleted and its repositories repointed here, so exactly one {@code @Entity}
+	 * now maps each {@code master.*} table. {@code io.mosip.admin.bulkdataupload.entity} is
+	 * still listed because 14 admin-only classes remain there - the bulk-upload transaction
+	 * log, the applicant login detail, and the {@code reg_center_*} mapping entities.
+	 * </p>
+	 *
+	 * <p>
+	 * Pinned to these two packages rather than {@code io.mosip.*}: a wildcard would swallow
+	 * hotlist's entities, which must stay on their own {@code mosip_hotlist} datasource
+	 * (merge-plan risk R1).
+	 * </p>
+	 */
+	static final String[] MASTER_ENTITY_PACKAGES = { "io.mosip.kernel.masterdata.entity",
+			"io.mosip.admin.bulkdataupload.entity" };
 
 	@Autowired
 	private Environment environment;

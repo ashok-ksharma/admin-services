@@ -28,6 +28,8 @@
 		<mosip.biometric.util.version>1.3.1</mosip.biometric.util.version>
 		<mosip.openid.bridge.version>1.3.1</mosip.openid.bridge.version>
 		<kernel.auth.adapter.version>1.3.1</kernel.auth.adapter.version>
+		<tss.version>0.3.0</tss.version>
+		<kernel.websubclient.api.version>1.3.1-rc.1</kernel.websubclient.api.version>
 		<maven.deploy.plugin.version>3.1.1</maven.deploy.plugin.version>
 		<central.publishing.maven.plugin.version>0.7.0</central.publishing.maven.plugin.version>
 		<spring-boot-maven-plugin.version>3.2.3</spring-boot-maven-plugin.version>
@@ -296,6 +298,80 @@
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
+		<dependency>
+			<groupId>org.springframework.cloud</groupId>
+			<artifactId>spring-cloud-starter-config</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>org.bouncycastle</groupId>
+					<artifactId>bcprov-jdk18on</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-openid-bridge-api</artifactId>
+			<version>${mosip.openid.bridge.version}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-applicanttype-api</artifactId>
+			<version>${kernel.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-idgenerator-regcenterid</artifactId>
+			<version>${kernel.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-idgenerator-machineid</artifactId>
+			<version>${kernel.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-datamapper-orika</artifactId>
+			<version>${kernel.core.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>io.mosip.kernel</groupId>
+			<artifactId>kernel-websubclient-api</artifactId>
+			<version>${kernel.websubclient.api.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.microsoft</groupId>
+			<artifactId>TSS.Java</artifactId>
+			<version>${tss.version}</version>
+			<exclusions>
+				<!--
+				  TSS.Java drags in jna 4.4.0. Declaring TSS.Java directly here (masterdata
+				  had it as a direct dependency) makes that the nearest jna and silently
+				  downgraded the tree from 5.13.0 to 4.4.0. TSS.Java 0.3.0 was already on
+				  admin-service's classpath transitively and already ran against jna 5.13.0
+				  before this merge, so excluding it keeps the resolved classpath identical
+				  to pre-merge instead of quietly regressing a native library.
+				-->
+				<exclusion>
+					<groupId>net.java.dev.jna</groupId>
+					<artifactId>jna</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-collections4</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-module-junit4</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.powermock</groupId>
+			<artifactId>powermock-api-mockito2</artifactId>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 	<distributionManagement>
 		<snapshotRepository>

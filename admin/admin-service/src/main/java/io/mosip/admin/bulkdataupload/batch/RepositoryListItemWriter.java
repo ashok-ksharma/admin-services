@@ -8,7 +8,17 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.PersistenceUnitUtil;
 
-import io.mosip.admin.bulkdataupload.entity.*;
+import io.mosip.kernel.masterdata.entity.BaseEntity;
+import io.mosip.kernel.masterdata.entity.Device;
+import io.mosip.kernel.masterdata.entity.Machine;
+import io.mosip.kernel.masterdata.entity.RegistrationCenter;
+import io.mosip.kernel.masterdata.entity.UserDetails;
+import io.mosip.kernel.masterdata.entity.ZoneUser;
+import io.mosip.kernel.masterdata.entity.DeviceHistory;
+import io.mosip.kernel.masterdata.entity.MachineHistory;
+import io.mosip.kernel.masterdata.entity.RegistrationCenterHistory;
+import io.mosip.kernel.masterdata.entity.UserDetailsHistory;
+import io.mosip.kernel.masterdata.entity.ZoneUserHistory;
 import io.mosip.admin.config.Mapper;
 import io.mosip.admin.config.MapperUtils;
 import org.slf4j.Logger;
@@ -128,58 +138,62 @@ public class RepositoryListItemWriter<T> implements ItemWriter<T> {
         }
     }
 
+    /**
+     * Writes the matching {@code *_h} history row for the entity just written.
+     *
+     * <p>
+     * This used to switch on {@code entity.getCanonicalName()} against five hard-coded
+     * fully-qualified {@code io.mosip.admin.bulkdataupload.entity.*} strings. Those strings
+     * went stale the moment the entity sets were consolidated onto masterdata's canonical
+     * classes, and the failure would have been silent: every branch would miss, control
+     * would fall through the default, and bulk upload would simply stop writing history to
+     * zone_user_h, user_detail_h, machine_master_h, device_master_h and
+     * registration_center_h - no exception, no log.
+     * </p>
+     *
+     * <p>
+     * Comparing {@code Class} objects instead means the compiler now resolves these names.
+     * A future package move breaks the build rather than the data.
+     * </p>
+     */
     private void createHistoryRecord(Object object) {
-        String historyRepoBeanName;
-        BaseRepository historyBaseRepo;
-        switch(entity.getCanonicalName()) {
-            case "io.mosip.admin.bulkdataupload.entity.ZoneUser":
-                historyRepoBeanName=mapper.getRepo(ZoneUserHistory.class);
-                historyBaseRepo = (BaseRepository) applicationContext.getBean(historyRepoBeanName);
-                ZoneUserHistory userHistory = new ZoneUserHistory();
-                MapperUtils.map(object, userHistory);
-                MapperUtils.setBaseFieldValue(object, userHistory);
-                userHistory.setEffDTimes(userHistory.getCreatedDateTime());
-                historyBaseRepo.save(userHistory);
-                break;
-            case "io.mosip.admin.bulkdataupload.entity.UserDetails":
-                historyRepoBeanName=mapper.getRepo(UserDetailsHistory.class);
-                historyBaseRepo = (BaseRepository) applicationContext.getBean(historyRepoBeanName);
-                UserDetailsHistory userDetailHistory = new UserDetailsHistory();
-                MapperUtils.map(object, userDetailHistory);
-                MapperUtils.setBaseFieldValue(object, userDetailHistory);
-                userDetailHistory.setEffDTimes(userDetailHistory.getCreatedDateTime());
-                historyBaseRepo.save(userDetailHistory);
-                break;
-            case "io.mosip.admin.bulkdataupload.entity.Machine":
-                historyRepoBeanName=mapper.getRepo(MachineHistory.class);
-                historyBaseRepo = (BaseRepository) applicationContext.getBean(historyRepoBeanName);
-                MachineHistory machineHistory = new MachineHistory();
-                MapperUtils.map(object, machineHistory);
-                MapperUtils.setBaseFieldValue(object, machineHistory);
-                machineHistory.setEffectDateTime(machineHistory.getCreatedDateTime());
-                historyBaseRepo.save(machineHistory);
-                break;
-            case "io.mosip.admin.bulkdataupload.entity.Device":
-                historyRepoBeanName=mapper.getRepo(DeviceHistory.class);
-                historyBaseRepo = (BaseRepository) applicationContext.getBean(historyRepoBeanName);
-                DeviceHistory deviceHistory = new DeviceHistory();
-                MapperUtils.map(object, deviceHistory);
-                MapperUtils.setBaseFieldValue(object, deviceHistory);
-                deviceHistory.setEffectDateTime(deviceHistory.getCreatedDateTime());
-                historyBaseRepo.save(deviceHistory);
-                break;
-            case "io.mosip.admin.bulkdataupload.entity.RegistrationCenter":
-                historyRepoBeanName=mapper.getRepo(RegistrationCenterHistory.class);
-                historyBaseRepo = (BaseRepository) applicationContext.getBean(historyRepoBeanName);
-                RegistrationCenterHistory registrationCenterHistory = new RegistrationCenterHistory();
-                MapperUtils.map(object, registrationCenterHistory);
-                MapperUtils.setBaseFieldValue(object, registrationCenterHistory);
-                registrationCenterHistory.setEffectivetimes(registrationCenterHistory.getCreatedDateTime());
-                historyBaseRepo.save(registrationCenterHistory);
-                break;
-            default:
-                break;
+        if (ZoneUser.class.equals(entity)) {
+            ZoneUserHistory userHistory = new ZoneUserHistory();
+            MapperUtils.map(object, userHistory);
+            MapperUtils.setBaseFieldValue(object, userHistory);
+            userHistory.setEffDTimes(userHistory.getCreatedDateTime());
+            saveHistory(ZoneUserHistory.class, userHistory);
+        } else if (UserDetails.class.equals(entity)) {
+            UserDetailsHistory userDetailHistory = new UserDetailsHistory();
+            MapperUtils.map(object, userDetailHistory);
+            MapperUtils.setBaseFieldValue(object, userDetailHistory);
+            userDetailHistory.setEffDTimes(userDetailHistory.getCreatedDateTime());
+            saveHistory(UserDetailsHistory.class, userDetailHistory);
+        } else if (Machine.class.equals(entity)) {
+            MachineHistory machineHistory = new MachineHistory();
+            MapperUtils.map(object, machineHistory);
+            MapperUtils.setBaseFieldValue(object, machineHistory);
+            machineHistory.setEffectDateTime(machineHistory.getCreatedDateTime());
+            saveHistory(MachineHistory.class, machineHistory);
+        } else if (Device.class.equals(entity)) {
+            DeviceHistory deviceHistory = new DeviceHistory();
+            MapperUtils.map(object, deviceHistory);
+            MapperUtils.setBaseFieldValue(object, deviceHistory);
+            deviceHistory.setEffectDateTime(deviceHistory.getCreatedDateTime());
+            saveHistory(DeviceHistory.class, deviceHistory);
+        } else if (RegistrationCenter.class.equals(entity)) {
+            RegistrationCenterHistory registrationCenterHistory = new RegistrationCenterHistory();
+            MapperUtils.map(object, registrationCenterHistory);
+            MapperUtils.setBaseFieldValue(object, registrationCenterHistory);
+            registrationCenterHistory.setEffectivetimes(registrationCenterHistory.getCreatedDateTime());
+            saveHistory(RegistrationCenterHistory.class, registrationCenterHistory);
         }
+    }
+
+    private void saveHistory(Class<?> historyType, Object historyRecord) {
+        String historyRepoBeanName = mapper.getRepo(historyType);
+        BaseRepository historyBaseRepo = (BaseRepository) applicationContext.getBean(historyRepoBeanName);
+        historyBaseRepo.save(historyRecord);
     }
 
     /*public void afterPropertiesSet() throws Exception {

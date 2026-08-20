@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import io.mosip.kernel.masterdata.entity.BaseEntity;
 /**
  * 
  * @author dhanendra

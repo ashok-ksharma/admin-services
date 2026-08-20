@@ -183,7 +183,6 @@
 	</dependencyManagement>
 	<modules>
 		<module>admin-service</module>
-		<module>kernel-masterdata-service</module>
         <module>kernel-syncdata-service</module>
         <module>hotlist-service</module>
 	</modules>

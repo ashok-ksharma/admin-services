@@ -1,7 +1,7 @@
 package io.mosip.admin.bulkdataupload.service;
 
 import io.mosip.admin.bulkdataupload.dto.BulkDataResponseDto;
-import io.mosip.admin.bulkdataupload.entity.BaseEntity;
+import io.mosip.kernel.masterdata.entity.BaseEntity;
 import io.mosip.admin.bulkdataupload.entity.BulkUploadTranscation;
 import io.mosip.admin.bulkdataupload.repositories.BulkUploadTranscationRepository;
 import io.mosip.admin.bulkdataupload.service.impl.BulkDataUploadServiceImpl;

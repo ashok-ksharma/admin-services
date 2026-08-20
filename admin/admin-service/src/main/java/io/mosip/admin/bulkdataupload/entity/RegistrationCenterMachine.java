@@ -13,11 +13,14 @@ import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-import io.mosip.admin.bulkdataupload.entity.id.RegistrationCenterMachineID;
+import io.mosip.kernel.masterdata.entity.id.RegistrationCenterMachineID;
+import io.mosip.kernel.masterdata.entity.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import io.mosip.kernel.masterdata.entity.Machine;
+import io.mosip.kernel.masterdata.entity.RegistrationCenter;
 
 /**
  * 
