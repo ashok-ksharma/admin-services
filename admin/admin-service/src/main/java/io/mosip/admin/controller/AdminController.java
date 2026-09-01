@@ -24,7 +24,7 @@ public class AdminController {
 	@Autowired
 	AuditUtil auditUtil;
 
-	@PreAuthorize("hasAnyRole(@authorizedRoles.getPostlostRid())")
+	@PreAuthorize("hasAnyRole(@adminAuthorizedRoles.getPostlostRid())")
 	@PostMapping("/lostRid")
 	public ResponseWrapper<LostRidExtnDto> lostRid(@RequestBody RequestWrapper<SearchInfo> searchInfo) {
 		auditUtil.setAuditRequestDto(EventEnum.LOST_RID_API_CALLED,null);
@@ -33,7 +33,7 @@ public class AdminController {
 		return buildLostRidResponse(lostRidResponseDto);
 	}
 
-	@PreAuthorize("hasAnyRole(@authorizedRoles.getGetlostRiddetailsrid())")
+	@PreAuthorize("hasAnyRole(@adminAuthorizedRoles.getGetlostRiddetailsrid())")
 	@GetMapping("/lostRid/details/{rid}")
 	public ResponseWrapper<LostRidDetailsDto> getLostRidDetails(@PathVariable("rid") String rid) {
 		auditUtil.setAuditRequestDto(EventEnum.LOST_RID_API_CALLED,null);

@@ -46,7 +46,33 @@ import io.mosip.kernel.masterdata.exception.ValidationException;
  * AuditUtil.
  */
 
-@Component
+/*
+ * Explicitly named during the admin-services merge. This class and
+ * io.mosip.admin.packetstatusupdater.util.AuditUtil would both default to the bean name
+ * "auditUtil" and the application would fail to start with
+ * ConflictingBeanDefinitionException. Every injection of either is by type, and the two
+ * types are FQN-distinct, so the name alone needed disambiguating.
+ *
+ * The two classes were deliberately NOT merged into one, although roughly 85% of their
+ * bodies are identical - same audit URL property, same selfTokenRestTemplate, same
+ * 17-field request payload, and getServerIp/getServerName/getHostDetails/callAuditManager
+ * are the same code. They stay separate because their error contracts differ:
+ *
+ *   - AuditErrorCode.AUDIT_PARSE_EXCEPTION is KER-MSD-197 here and KER-MSD-196 in admin;
+ *     AUDIT_EXCEPTION is KER-MSD-199 here and KER-MSD-198 in admin.
+ *   - Each throws its own MasterDataServiceException / ValidationException, and those are
+ *     routed by package-scoped @RestControllerAdvice, so the type determines which
+ *     handler and which response shape a caller sees.
+ *   - callAuditManager is the method that throws, and it is shared, so a single class
+ *     would have to pick one error-code set - changing the code returned on audit failure
+ *     for whichever service lost.
+ *   - They also skip auditing on different profiles: local1 (admin) vs local (here).
+ *
+ * Parameterising all of that per entry point would leave one class carrying two error-code
+ * sets, two exception types and two profile rules, which is not a simplification. See
+ * merge plan gap G8.
+ */
+@Component("masterdataAuditUtil")
 public class AuditUtil {
 
 	/** The Constant APPLICATION_ID. */

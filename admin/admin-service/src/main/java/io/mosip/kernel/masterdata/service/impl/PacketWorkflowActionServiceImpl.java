@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.mosip.kernel.masterdata.constant.ApiName;
+import io.mosip.admin.packetstatusupdater.constant.ApiName;
 import io.mosip.kernel.masterdata.constant.PacketWorkflowErrorCode;
 import io.mosip.kernel.masterdata.dto.PacketWorkflowActionRequestDTO;
 import io.mosip.kernel.masterdata.dto.PacketWorkflowActionResponseDTO;
@@ -27,7 +27,7 @@ import io.mosip.kernel.masterdata.dto.request.SearchSort;
 import io.mosip.kernel.masterdata.exception.MasterDataServiceException;
 import io.mosip.kernel.masterdata.service.PacketWorkflowActionService;
 import io.mosip.kernel.masterdata.utils.ExceptionUtils;
-import io.mosip.kernel.masterdata.utils.RestClient;
+import io.mosip.admin.packetstatusupdater.util.RestClient;
 
 @Service
 public class PacketWorkflowActionServiceImpl implements PacketWorkflowActionService {

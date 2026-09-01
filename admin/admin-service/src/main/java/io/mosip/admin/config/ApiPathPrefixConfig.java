@@ -36,11 +36,17 @@ public class ApiPathPrefixConfig implements WebMvcConfigurer {
 	/** External URL prefix that admin-service's controllers used to get from the context-path. */
 	public static final String ADMIN_PREFIX = "/v1/admin";
 
+	/** External URL prefix that masterdata's controllers used to get from the context-path. */
+	public static final String MASTERDATA_PREFIX = "/v1/masterdata";
+
 	private static final String[] ADMIN_BASE_PACKAGES = { "io.mosip.admin", "io.mosip.kernel.authcodeflowproxy" };
+
+	private static final String MASTERDATA_BASE_PACKAGE = "io.mosip.kernel.masterdata";
 
 	@Override
 	public void configurePathMatch(PathMatchConfigurer configurer) {
 		configurer.addPathPrefix(ADMIN_PREFIX, HandlerTypePredicate.forBasePackage(ADMIN_BASE_PACKAGES));
-		// Steps 1-3 add: /v1/masterdata, /v1/syncdata, /v1/hotlist.
+		configurer.addPathPrefix(MASTERDATA_PREFIX, HandlerTypePredicate.forBasePackage(MASTERDATA_BASE_PACKAGE));
+		// Steps 2-3 add: /v1/syncdata, /v1/hotlist.
 	}
 }

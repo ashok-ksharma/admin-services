@@ -36,7 +36,7 @@ public class PacketUpdateStatusController {
 	 * @param rId the r id
 	 * @return the response wrapper
 	 */
-	@PreAuthorize("hasAnyRole(@authorizedRoles.getGetpacketstatusupdate())")
+	@PreAuthorize("hasAnyRole(@adminAuthorizedRoles.getGetpacketstatusupdate())")
 	@GetMapping
 	//@PreAuthorize("hasAnyRole('ZONAL_ADMIN','GLOBAL_ADMIN')")
 	@ResponseFilter

@@ -46,20 +46,42 @@ import io.mosip.kernel.masterdata.dto.DeviceRegisterResponseDto;
 
 /**
  * Rest Controller Advice for Master Data
- * 
+ *
  * @author Dharmesh Khandelwal
  * @author Bal Vikash Sharma
  * @author Neha Sinha
  *
  * @since 1.0.0
  */
-@RestControllerAdvice
-public class ApiExceptionHandler {
+/*
+ * Scoped to masterdata's own controller package. {@code basePackages} selects which
+ * CONTROLLERS this advice may serve - it is not a filter on where the exception class
+ * lives. Before matching an exception, Spring asks every advice
+ * {@code isApplicableToBeanType(handlerType)}, where {@code handlerType} is the controller
+ * that was handling the request; advices whose packages do not contain it are dropped
+ * before their {@code @ExceptionHandler} methods are even considered.
+ *
+ * So for a request to, say, MachineController this advice applies and admin-service's
+ * ApiExceptionHandler does not (it is scoped to io.mosip.admin and
+ * io.mosip.kernel.authcodeflowproxy), and vice versa for an admin controller - each
+ * service keeps the exact error codes and response shapes it returned before the merge.
+ *
+ * Without this scope the advice would apply to EVERY controller in the merged
+ * application. That is harmless for admin-service's own controllers, whose advice is
+ * @Order(HIGHEST_PRECEDENCE) with an Exception.class catch-all and therefore always
+ * resolves first, but it would silently capture the controllers neither service owns -
+ * springdoc's /v1/admin/v3/api-docs resources and the actuator endpoints, which
+ * admin-service's advice deliberately does not cover. The catch-all below would rewrite
+ * their failures into KER-MSD-* ResponseWrapper responses, changing a surface the merge
+ * is not supposed to touch (merge plan risk R2).
+ */
+@RestControllerAdvice(basePackages = "io.mosip.kernel.masterdata")
+public class MasterDataApiExceptionHandler {
 
 	@Autowired
 	private ObjectMapper objectMapper;
 	
-	private static final Logger logger = LoggerFactory.getLogger(ApiExceptionHandler.class);
+	private static final Logger logger = LoggerFactory.getLogger(MasterDataApiExceptionHandler.class);
 
 	@ExceptionHandler(MasterDataServiceException.class)
 	public ResponseEntity<ResponseWrapper<ServiceError>> controlDataServiceException(

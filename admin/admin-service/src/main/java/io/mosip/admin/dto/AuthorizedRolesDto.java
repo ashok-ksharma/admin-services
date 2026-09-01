@@ -8,7 +8,22 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 
 
-@Component("authorizedRoles")
+/*
+ * Renamed from "authorizedRoles" during the admin-services merge.
+ * io.mosip.kernel.masterdata.config.AuthorizedRolesDto also declares
+ * @Component("authorizedRoles") explicitly, so one of the two had to give up the name or
+ * the application would fail to start with ConflictingBeanDefinitionException.
+ *
+ * Admin's was renamed rather than masterdata's because the name is referenced from SpEL in
+ * @PreAuthorize expressions, which no compiler checks: 10 references across 5 files here,
+ * against 286 across 53 files in masterdata.
+ *
+ * The two DTOs are not merged - they bind different prefixes (mosip.role.admin here,
+ * mosip.role.admin.masterdata there) onto different role sets, and merging them could
+ * silently change an authorization decision. Binding is by prefix, not by bean name, so
+ * this rename does not affect it (merge plan section 4.2).
+ */
+@Component("adminAuthorizedRoles")
 @ConfigurationProperties(prefix = "mosip.role.admin")
 @Getter
 @Setter

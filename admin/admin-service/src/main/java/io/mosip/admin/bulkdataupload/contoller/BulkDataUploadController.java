@@ -35,7 +35,7 @@ public class BulkDataUploadController {
 	
 	@Autowired
 	private BulkDataService bulkDataService;
-	@PreAuthorize("hasAnyRole(@authorizedRoles.getPostbulkupload())")
+	@PreAuthorize("hasAnyRole(@adminAuthorizedRoles.getPostbulkupload())")
 	@PostMapping(value = { "/bulkupload" }, consumes = { "multipart/form-data" })
 	//@PreAuthorize("hasRole('GLOBAL_ADMIN')")
 	public ResponseWrapper<BulkDataResponseDto> uploadData(@RequestParam(value = "tableName", required = false, defaultValue = "") String tableName,
@@ -54,7 +54,7 @@ public class BulkDataUploadController {
 		return responseWrapper;
 		
 	}
-	@PreAuthorize("hasAnyRole(@authorizedRoles.getGetbulkuploadtranscationtranscationid())")
+	@PreAuthorize("hasAnyRole(@adminAuthorizedRoles.getGetbulkuploadtranscationtranscationid())")
 	@GetMapping("/bulkupload/transcation/{transcationId}")
 	//@PreAuthorize("hasRole('GLOBAL_ADMIN')")
 	public ResponseWrapper<BulkDataGetExtnDto> getTranscationDetail(@PathVariable("transcationId") String transcationId) throws Exception {
@@ -64,7 +64,7 @@ public class BulkDataUploadController {
 		auditUtil.setAuditRequestDto(EventEnum.getEventEnumWithValue(EventEnum.BULKDATA_TRANSACTION_SUCCESS,transcationId),null);
 		return responseWrapper;
 	}
-	@PreAuthorize("hasAnyRole(@authorizedRoles.getGetbulkuploadgetalltransactions())")
+	@PreAuthorize("hasAnyRole(@adminAuthorizedRoles.getGetbulkuploadgetalltransactions())")
 	@GetMapping("/bulkupload/getAllTransactions")
 	//@PreAuthorize("hasRole('GLOBAL_ADMIN')")
 	public ResponseWrapper<PageDto<BulkDataGetExtnDto>> getTranscationDetail(
