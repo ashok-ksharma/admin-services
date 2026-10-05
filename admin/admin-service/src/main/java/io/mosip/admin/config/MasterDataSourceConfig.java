@@ -54,7 +54,9 @@ import jakarta.persistence.EntityManagerFactory;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-		basePackages = { "io.mosip.kernel.masterdata.repository", "io.mosip.admin.bulkdataupload.repositories" },
+		basePackages = { "io.mosip.kernel.masterdata.repository", "io.mosip.admin.bulkdataupload.repositories",
+				"io.mosip.kernel.idgenerator.machineid.repository",
+				"io.mosip.kernel.idgenerator.regcenterid.repository" },
 		entityManagerFactoryRef = "masterEntityManagerFactory",
 		transactionManagerRef = "masterTxManager",
 		repositoryBaseClass = HibernateRepositoryImpl.class)
@@ -74,13 +76,24 @@ public class MasterDataSourceConfig {
 	 * </p>
 	 *
 	 * <p>
-	 * Pinned to these two packages rather than {@code io.mosip.*}: a wildcard would swallow
+	 * {@code io.mosip.kernel.idgenerator.machineid.entity} and
+	 * {@code io.mosip.kernel.idgenerator.regcenterid.entity} were added when step 1b turned on
+	 * {@code io.mosip.kernel.idgenerator.*} in the component scan: that scan reaches each
+	 * library's {@code impl} service (e.g. {@code MachineIdGeneratorImpl}), which injects a
+	 * JPA repository from the sibling {@code repository} package. Without these two packages
+	 * here too, the application fails to start with "No qualifying bean of type
+	 * '...MachineIdRepository' available".
+	 * </p>
+	 *
+	 * <p>
+	 * Pinned to these packages rather than {@code io.mosip.*}: a wildcard would swallow
 	 * hotlist's entities, which must stay on their own {@code mosip_hotlist} datasource
 	 * (merge-plan risk R1).
 	 * </p>
 	 */
 	static final String[] MASTER_ENTITY_PACKAGES = { "io.mosip.kernel.masterdata.entity",
-			"io.mosip.admin.bulkdataupload.entity" };
+			"io.mosip.admin.bulkdataupload.entity", "io.mosip.kernel.idgenerator.machineid.entity",
+			"io.mosip.kernel.idgenerator.regcenterid.entity" };
 
 	@Autowired
 	private Environment environment;
