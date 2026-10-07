@@ -4193,8 +4193,15 @@ public class MasterdataIntegrationTest {
 				Mockito.anyString())).thenReturn(device);
 		when(deviceRepository.update(Mockito.any()))
 				.thenThrow(new DataAccessLayerException("", "cannot execute statement", null));
+		// DeviceController maps PUT only on /devices, not /devices/{id}.
+		// Step 1b (admin-service merge): no masterdata controller maps this request, so Spring's
+		// default resolver answers 405 (HttpRequestMethodNotSupportedException). Before the merge masterdata's exception advice was
+		// unscoped and its catch-all turned this into HTTP 500; it is now scoped to
+		// io.mosip.kernel.masterdata and does not apply when no controller matches. Intended
+		// behaviour change - revisit per admin-service-merge-plan.md Appendix D.2 if clients rely
+		// on the old 500.
 		mockMvc.perform(put("/devices/1000").contentType(MediaType.APPLICATION_JSON))
-				.andExpect(status().isInternalServerError());
+				.andExpect(status().isMethodNotAllowed());
 
 	}
 

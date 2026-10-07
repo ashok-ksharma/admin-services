@@ -9,7 +9,7 @@ import io.mosip.kernel.masterdata.dto.PacketWorkflowResumeRequestDto;
 import io.mosip.kernel.masterdata.test.TestBootApplication;
 import io.mosip.kernel.masterdata.test.utils.MasterDataTest;
 import io.mosip.kernel.masterdata.utils.AuditUtil;
-import io.mosip.kernel.masterdata.utils.RestClient;
+import io.mosip.admin.packetstatusupdater.util.RestClient;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;

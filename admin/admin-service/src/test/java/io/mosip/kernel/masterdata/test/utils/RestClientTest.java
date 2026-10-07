@@ -1,7 +1,7 @@
 package io.mosip.kernel.masterdata.test.utils;
 
-import io.mosip.kernel.masterdata.constant.ApiName;
-import io.mosip.kernel.masterdata.utils.RestClient;
+import io.mosip.admin.packetstatusupdater.constant.ApiName;
+import io.mosip.admin.packetstatusupdater.util.RestClient;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

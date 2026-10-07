@@ -24,6 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import static org.mockito.Mockito.doNothing;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TestBootApplication.class)
@@ -65,7 +66,14 @@ public class MachineHistoryControllerTest {
 	@Test
 	@WithUserDetails("global-admin")
 	public void getMachineHistoryIdLangEffTest_WithOutLangCode() throws Exception {
-		MasterDataTest.checkErrorResponse(mockMvc.perform(MockMvcRequestBuilders.get("/machines/10001/2011-12-10T17:39:48.765Z")).andReturn());
+		// Step 1b (admin-service merge): no masterdata controller maps this request, so Spring's
+		// default resolver answers 404 (NoResourceFoundException). Before the merge masterdata's exception advice was
+		// unscoped and its catch-all turned this into HTTP 500; it is now scoped to
+		// io.mosip.kernel.masterdata and does not apply when no controller matches. Intended
+		// behaviour change - revisit per admin-service-merge-plan.md Appendix D.2 if clients rely
+		// on the old 500.
+		mockMvc.perform(MockMvcRequestBuilders.get("/machines/10001/2011-12-10T17:39:48.765Z"))
+				.andExpect(status().isNotFound());
 	}
 	
 
