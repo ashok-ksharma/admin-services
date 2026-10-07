@@ -73,7 +73,7 @@ import io.mosip.kernel.masterdata.dto.DeviceRegisterResponseDto;
  * springdoc's /v1/admin/v3/api-docs resources and the actuator endpoints, which
  * admin-service's advice deliberately does not cover. The catch-all below would rewrite
  * their failures into KER-MSD-* ResponseWrapper responses, changing a surface the merge
- * is not supposed to touch (merge plan risk R2).
+ * is not supposed to touch.
  */
 @RestControllerAdvice(basePackages = "io.mosip.kernel.masterdata")
 public class MasterDataApiExceptionHandler {
