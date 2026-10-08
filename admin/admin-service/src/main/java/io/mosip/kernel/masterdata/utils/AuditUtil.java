@@ -69,8 +69,7 @@ import io.mosip.kernel.masterdata.exception.ValidationException;
  *   - They also skip auditing on different profiles: local1 (admin) vs local (here).
  *
  * Parameterising all of that per entry point would leave one class carrying two error-code
- * sets, two exception types and two profile rules, which is not a simplification. See
- * merge plan gap G8.
+ * sets, two exception types and two profile rules, which is not a simplification.
  */
 @Component("masterdataAuditUtil")
 public class AuditUtil {

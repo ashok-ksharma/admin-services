@@ -41,7 +41,7 @@ import io.mosip.kernel.datamapper.orika.impl.DataMapperImpl;
  * {@code @Import(HibernateDaoConfig.class)} is dropped for the reason given above - it
  * declares {@code @EnableJpaRepositories("io.mosip.*")} and
  * {@code setPackagesToScan("io.mosip.*")}, which would swallow hotlist's entities onto the
- * master datasource (merge plan risk R1). {@code MasterDataSourceConfig} already maps
+ * master datasource. {@code MasterDataSourceConfig} already maps
  * masterdata's entities and repositories explicitly.
  * </p>
  */

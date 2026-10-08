@@ -21,7 +21,7 @@ import java.util.List;
  * The two DTOs are not merged - they bind different prefixes (mosip.role.admin here,
  * mosip.role.admin.masterdata there) onto different role sets, and merging them could
  * silently change an authorization decision. Binding is by prefix, not by bean name, so
- * this rename does not affect it (merge plan section 4.2).
+ * this rename does not affect it.
  */
 @Component("adminAuthorizedRoles")
 @ConfigurationProperties(prefix = "mosip.role.admin")

@@ -17,11 +17,11 @@ import io.mosip.admin.config.ApiPathPrefixConfig;
  *
  * <p>
  * masterdata used to ship its own {@code SwaggerConfig} and {@code OpenApiProperties}.
- * Both were deleted at step 1b: they bound the same {@code openapi.*} prefix as
- * admin-service's copies, so in one application they would have held identical values
- * while colliding on the bean names {@code openApiProperties}, {@code swaggerConfig},
- * {@code openApi} and {@code groupedOpenApi}. What is genuinely per-service is the
- * <em>group</em>, which is all this class contributes.
+ * Both were removed when masterdata was combined into admin-service: they bound the same
+ * {@code openapi.*} prefix as admin-service's copies, so in one application they would
+ * have held identical values while colliding on the bean names {@code openApiProperties},
+ * {@code swaggerConfig}, {@code openApi} and {@code groupedOpenApi}. What is genuinely
+ * per-service is the <em>group</em>, which is all this class contributes.
  * </p>
  *
  * <p>

@@ -53,10 +53,9 @@ public class LocalDateLocalTimeConfig {
 	 * MismatchedInputException). Requests carrying a misspelled or extra field are now
 	 * accepted with the field ignored instead of reported. Type mismatches and missing
 	 * input are unaffected - those still arrive as InvalidFormatException. No test in
-	 * either suite asserts the old behaviour. See Appendix D.2 of the merge plan: if
-	 * post-merge tests fail on deserialisation, revisit this attribute, and prefer
-	 * @JsonIgnoreProperties(ignoreUnknown = true) on the affected admin DTOs over flipping
-	 * this flag back.
+	 * either suite asserts the old behaviour. If tests fail on deserialisation, revisit
+	 * this attribute, and prefer @JsonIgnoreProperties(ignoreUnknown = true) on the affected
+	 * admin DTOs over flipping this flag back.
 	 *
 	 * Serialization is unaffected: the JavaTimeModule below pins LocalDate, LocalTime and
 	 * LocalDateTime by type for every class in the application, so admin-service's DTOs

@@ -42,8 +42,7 @@ import io.mosip.kernel.core.util.EmptyCheckUtils;
  * response lives. Spring tests isApplicableToBeanType(handlerType) against the controller
  * that handled the request and drops advices whose packages do not contain it. So this
  * advice now wraps only masterdata's responses, and admin-service's - already scoped to
- * io.mosip.admin and io.mosip.kernel.authcodeflowproxy - only wraps its own (merge plan
- * risk R2).
+ * io.mosip.admin and io.mosip.kernel.authcodeflowproxy - only wraps its own.
  */
 @RestControllerAdvice(basePackages = "io.mosip.kernel.masterdata")
 public class MasterDataResponseBodyAdviceConfig implements ResponseBodyAdvice<ResponseWrapper<?>> {
