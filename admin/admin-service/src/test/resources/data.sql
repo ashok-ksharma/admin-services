@@ -7,7 +7,7 @@ INSERT INTO master.bulkupload_transaction(id, entity_name, upload_operation, sta
 ('3456','ZoneUser','Insert','Completed','1','superadmin','masterdata',TIMESTAMP '2018-12-10 11:42:52.994',null,'eng',true,'superadmin',TIMESTAMP '2018-12-10 11:42:52.994',null,null,null,null);
 
 -- ===========================================================================
--- kernel-masterdata-service (merged at step 1b, batch 3)
+-- kernel-masterdata-service
 -- ===========================================================================
 --DELETE FROM MASTER.appl_form_type;
 INSERT INTO master.appl_form_type(code, name,descr, lang_code,is_active, cr_by, cr_dtimes, upd_by, upd_dtimes, is_DELETEd, del_dtimes) VALUES

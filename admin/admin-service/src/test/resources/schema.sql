@@ -131,7 +131,7 @@ CREATE SEQUENCE IF NOT EXISTS BATCH_JOB_EXECUTION_SEQ MAXVALUE 92233720368547758
 CREATE SEQUENCE IF NOT EXISTS BATCH_JOB_SEQ MAXVALUE 9223372036854775807 NO CYCLE;
 
 -- ===========================================================================
--- kernel-masterdata-service (merged at step 1b, batch 3)
+-- kernel-masterdata-service
 -- ===========================================================================
 CREATE MEMORY TABLE IF NOT EXISTS master.appl_form_type(
 	code character varying(36) NOT NULL,

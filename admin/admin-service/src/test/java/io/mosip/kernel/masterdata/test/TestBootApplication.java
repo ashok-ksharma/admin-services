@@ -26,7 +26,7 @@ import io.mosip.kernel.masterdata.test.config.TestSecurityConfig;
 // datasource auto-configuration is excluded. RestClient lives in io.mosip.admin, outside this
 // scan, and is needed by PacketWorkflowActionServiceImpl. CommonConfig registers ReqResFilter
 // (ContentCachingRequestWrapper) for every request, as it does in the merged application;
-// masterdata's own copy of that registration was removed at step 1b, and its exception handler
+// masterdata no longer registers its own copy of that filter, and its exception handler
 // and response-body advice read the cached request body.
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })

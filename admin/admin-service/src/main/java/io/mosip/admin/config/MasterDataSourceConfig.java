@@ -9,6 +9,7 @@ import org.hibernate.Interceptor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,9 +18,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -39,7 +43,7 @@ import jakarta.persistence.EntityManagerFactory;
  * {@code @EnableJpaRepositories(basePackages = "io.mosip.*")} and
  * {@code setPackagesToScan("io.mosip.*")}: a single persistence unit would swallow every
  * {@code io.mosip} entity and repository on the classpath, including hotlist's, which must
- * stay on its own {@code mosip_hotlist} datasource (risk R1 of the merge plan).
+ * stay on its own {@code mosip_hotlist} datasource.
  * </p>
  *
  * <p>
@@ -77,8 +81,8 @@ public class MasterDataSourceConfig {
 	 *
 	 * <p>
 	 * {@code io.mosip.kernel.idgenerator.machineid.entity} and
-	 * {@code io.mosip.kernel.idgenerator.regcenterid.entity} were added when step 1b turned on
-	 * {@code io.mosip.kernel.idgenerator.*} in the component scan: that scan reaches each
+	 * {@code io.mosip.kernel.idgenerator.regcenterid.entity} are needed because
+	 * {@code io.mosip.kernel.idgenerator.*} is in the component scan: that scan reaches each
 	 * library's {@code impl} service (e.g. {@code MachineIdGeneratorImpl}), which injects a
 	 * JPA repository from the sibling {@code repository} package. Without these two packages
 	 * here too, the application fails to start with "No qualifying bean of type
@@ -87,8 +91,7 @@ public class MasterDataSourceConfig {
 	 *
 	 * <p>
 	 * Pinned to these packages rather than {@code io.mosip.*}: a wildcard would swallow
-	 * hotlist's entities, which must stay on their own {@code mosip_hotlist} datasource
-	 * (merge-plan risk R1).
+	 * hotlist's entities, which must stay on their own {@code mosip_hotlist} datasource.
 	 * </p>
 	 */
 	static final String[] MASTER_ENTITY_PACKAGES = { "io.mosip.kernel.masterdata.entity",
@@ -153,6 +156,92 @@ public class MasterDataSourceConfig {
 	}
 
 	/**
+	 * Open-session-in-view for the {@code mosip_master} persistence unit, limited to
+	 * {@link #OPEN_SESSION_IN_VIEW_PATHS}.
+	 *
+	 * <p>
+	 * <b>Why it exists.</b> admin-service and kernel-masterdata-service each ran as a plain
+	 * {@code @SpringBootApplication}, so Spring Boot's {@code HibernateJpaAutoConfiguration}
+	 * registered this interceptor for every request ({@code spring.jpa.open-in-view} defaults
+	 * to {@code true}). The combined application excludes that auto-configuration and builds
+	 * its persistence setup explicitly in this class, which removes the interceptor with it.
+	 * Without it, code that reads a lazy association after the repository call has returned
+	 * fails with {@code LazyInitializationException} - e.g. {@code GET
+	 * /v1/masterdata/packetrejectionreasons} reading {@code ReasonCategory.reasonList}. It is
+	 * declared here, rather than by re-enabling the auto-configuration, so that it covers only
+	 * the services that relied on it.
+	 * </p>
+	 *
+	 * <p>
+	 * <b>What it does to a request it covers.</b> One {@code EntityManager} is opened when
+	 * the request starts and closed only after the response has been written:
+	 * </p>
+	 * <ul>
+	 * <li>lazy associations can be read anywhere in the request, including controllers,
+	 * DTO mapping and JSON serialization;</li>
+	 * <li>once the request first touches the database, the JDBC connection is held until the
+	 * response is fully written (Hibernate acquires it lazily, then keeps it for the
+	 * session), so slow or large responses keep a pool connection busy for longer;</li>
+	 * <li>every repository call in the request shares one session: the same row read twice
+	 * returns the same cached instance;</li>
+	 * <li>an entity loaded earlier in the request and modified outside a transaction is
+	 * flushed if a {@code @Transactional} method runs later in the same request.</li>
+	 * </ul>
+	 *
+	 * <p>
+	 * <b>Before adding a path to {@link #OPEN_SESSION_IN_VIEW_PATHS}</b> - for example when
+	 * another service is combined into this application - check that service against the
+	 * points above. Adding a path changes that service's behaviour; decide per service:
+	 * </p>
+	 * <ul>
+	 * <li><b>Did it run with open-session-in-view on its own?</b> kernel-syncdata-service did
+	 * <b>not</b>: its boot class excludes {@code HibernateJpaAutoConfiguration}.</li>
+	 * <li><b>Does it read lazy associations outside a transaction?</b> kernel-syncdata-service
+	 * does not: its lazy fields are never navigated, related data is loaded as separate flat
+	 * lists, many queries are native SQL or DTO projections, and its data loading runs in
+	 * {@code @Async} helpers - on other threads, which this interceptor never covers.</li>
+	 * <li><b>Does it hit the database on the request thread?</b> Each such request would hold
+	 * its connection until the response is written. kernel-syncdata-service does (repository
+	 * calls in {@code SyncAuthTokenServiceImpl}, {@code SyncMasterDataServiceImpl} and
+	 * {@code SyncUserDetailsServiceImpl}) and returns large sync payloads, so covering
+	 * {@code /v1/syncdata/**} would raise connection hold time and pool pressure for no
+	 * functional gain.</li>
+	 * <li><b>Is it on this persistence unit at all?</b> This interceptor only covers
+	 * {@code masterEntityManagerFactory}. hotlist-service uses its own {@code mosip_hotlist}
+	 * persistence unit (and ran with Spring Boot's open-session-in-view on its own); adding
+	 * {@code /v1/hotlist/**} here would not help it - it needs its own interceptor bound to
+	 * its own entity manager factory.</li>
+	 * </ul>
+	 */
+	@Bean
+	public OpenEntityManagerInViewInterceptor masterOpenEntityManagerInViewInterceptor(
+			@Qualifier("masterEntityManagerFactory") EntityManagerFactory entityManagerFactory) {
+		OpenEntityManagerInViewInterceptor interceptor = new OpenEntityManagerInViewInterceptor();
+		interceptor.setEntityManagerFactory(entityManagerFactory);
+		return interceptor;
+	}
+
+	/**
+	 * Paths covered by {@link #masterOpenEntityManagerInViewInterceptor}: admin-service and
+	 * kernel-masterdata-service, which relied on open-session-in-view when they ran on their
+	 * own. Read its javadoc before adding one.
+	 */
+	static final String[] OPEN_SESSION_IN_VIEW_PATHS = { ApiPathPrefixConfig.ADMIN_PREFIX + "/**",
+			ApiPathPrefixConfig.MASTERDATA_PREFIX + "/**" };
+
+	@Bean
+	public WebMvcConfigurer masterOpenEntityManagerInViewConfigurer(
+			OpenEntityManagerInViewInterceptor masterOpenEntityManagerInViewInterceptor) {
+		return new WebMvcConfigurer() {
+			@Override
+			public void addInterceptors(InterceptorRegistry registry) {
+				registry.addWebRequestInterceptor(masterOpenEntityManagerInViewInterceptor)
+						.addPathPatterns(OPEN_SESSION_IN_VIEW_PATHS);
+			}
+		};
+	}
+
+	/**
 	 * Same keys and same defaults as {@code HibernateDaoConfig.jpaProperties()}, so the
 	 * existing {@code hibernate.*} configuration keeps behaving identically.
 	 */
@@ -190,8 +279,8 @@ public class MasterDataSourceConfig {
 
 	/**
 	 * Mirrors {@code HibernateDaoConfig}: the interceptor is opt-in via the
-	 * {@code hibernate.empty.interceptor} property and instantiated by class name. Step 2
-	 * attaches masterdata's {@code MasterDataInterceptor} here.
+	 * {@code hibernate.empty.interceptor} property and instantiated by class name (e.g.
+	 * masterdata's {@code MasterDataInterceptor}).
 	 */
 	private void addInterceptor(HashMap<String, Object> jpaProperties) {
 		String interceptorClassName = environment.getProperty(HibernatePersistenceConstant.EMPTY_INTERCEPTOR);

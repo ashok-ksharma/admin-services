@@ -420,7 +420,7 @@
 				<configuration>
 					<source>${maven.compiler.source}</source>
 					<target>${maven.compiler.target}</target>
-					<!-- Carried over from kernel-masterdata-service's pom at step 1b. Spring 6.1+
+					<!-- Carried over from kernel-masterdata-service's pom. Spring 6.1+
 					     needs parameter names in the bytecode to bind @RequestParam/@PathVariable
 					     arguments declared without an explicit name, which masterdata's controllers
 					     rely on (54 such parameters across 23 controllers). Without it those

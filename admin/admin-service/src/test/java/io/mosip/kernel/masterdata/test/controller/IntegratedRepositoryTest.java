@@ -1732,12 +1732,10 @@ public class IntegratedRepositoryTest {
 				.thenThrow(new DataAccessException("...") {
 				});
 
-		// Step 1b (admin-service merge): no masterdata controller maps this request, so Spring's
-		// default resolver answers 404 (NoResourceFoundException). Before the merge masterdata's exception advice was
-		// unscoped and its catch-all turned this into HTTP 500; it is now scoped to
-		// io.mosip.kernel.masterdata and does not apply when no controller matches. Intended
-		// behaviour change - revisit per admin-service-merge-plan.md Appendix D.2 if clients rely
-		// on the old 500.
+		// No masterdata controller maps this request, so Spring's default resolver answers
+		// 404 (NoResourceFoundException). masterdata's exception handler is scoped to io.mosip.kernel.masterdata and
+		// does not apply when no controller matches; as a standalone service its unscoped
+		// catch-all returned HTTP 500 here. Revisit if a client relies on that 500.
 		mockMvc.perform(MockMvcRequestBuilders.get("/users/0/1/cr_dtimes/DESC")).andExpect(status().isNotFound());
 
 	}
@@ -2139,12 +2137,10 @@ public class IntegratedRepositoryTest {
 				.thenThrow(new DataAccessException("...") {
 				});
 		// ZoneController#authorizeZone (GET /zones/authorize) is commented out, so nothing maps this.
-		// Step 1b (admin-service merge): no masterdata controller maps this request, so Spring's
-		// default resolver answers 404 (NoResourceFoundException). Before the merge masterdata's exception advice was
-		// unscoped and its catch-all turned this into HTTP 500; it is now scoped to
-		// io.mosip.kernel.masterdata and does not apply when no controller matches. Intended
-		// behaviour change - revisit per admin-service-merge-plan.md Appendix D.2 if clients rely
-		// on the old 500.
+		// No masterdata controller maps this request, so Spring's default resolver answers
+		// 404 (NoResourceFoundException). masterdata's exception handler is scoped to io.mosip.kernel.masterdata and
+		// does not apply when no controller matches; as a standalone service its unscoped
+		// catch-all returned HTTP 500 here. Revisit if a client relies on that 500.
 		mockMvc.perform(MockMvcRequestBuilders.get("/zones/authorize").param("rid", "10001"))
 				.andExpect(status().isNotFound());
 	}
@@ -2261,12 +2257,10 @@ public class IntegratedRepositoryTest {
 	public void getUsersTest_withDeletionIsNull() throws Exception {
 		when(userDetailsRepository.findAllByIsDeletedFalseorIsDeletedIsNull(Mockito.any())).thenReturn(null);
 		
-		// Step 1b (admin-service merge): no masterdata controller maps this request, so Spring's
-		// default resolver answers 404 (NoResourceFoundException). Before the merge masterdata's exception advice was
-		// unscoped and its catch-all turned this into HTTP 500; it is now scoped to
-		// io.mosip.kernel.masterdata and does not apply when no controller matches. Intended
-		// behaviour change - revisit per admin-service-merge-plan.md Appendix D.2 if clients rely
-		// on the old 500.
+		// No masterdata controller maps this request, so Spring's default resolver answers
+		// 404 (NoResourceFoundException). masterdata's exception handler is scoped to io.mosip.kernel.masterdata and
+		// does not apply when no controller matches; as a standalone service its unscoped
+		// catch-all returned HTTP 500 here. Revisit if a client relies on that 500.
 		mockMvc.perform(MockMvcRequestBuilders.get("/users/0/1/cr_dtimes/DESC")).andExpect(status().isNotFound());
 	}
 	
@@ -2464,12 +2458,10 @@ public class IntegratedRepositoryTest {
 	@WithUserDetails("reg-processor")
 	public void getUsersTest_withDeletionIsAny() throws Exception {
 		when(userDetailsRepository.findAllByIsDeletedFalseorIsDeletedIsNull(Mockito.any())).thenReturn(null);
-		// Step 1b (admin-service merge): no masterdata controller maps this request, so Spring's
-		// default resolver answers 404 (NoResourceFoundException). Before the merge masterdata's exception advice was
-		// unscoped and its catch-all turned this into HTTP 500; it is now scoped to
-		// io.mosip.kernel.masterdata and does not apply when no controller matches. Intended
-		// behaviour change - revisit per admin-service-merge-plan.md Appendix D.2 if clients rely
-		// on the old 500.
+		// No masterdata controller maps this request, so Spring's default resolver answers
+		// 404 (NoResourceFoundException). masterdata's exception handler is scoped to io.mosip.kernel.masterdata and
+		// does not apply when no controller matches; as a standalone service its unscoped
+		// catch-all returned HTTP 500 here. Revisit if a client relies on that 500.
 		mockMvc.perform(MockMvcRequestBuilders.get("/users/0/1/cr_dtimes/DESC")).andExpect(status().isNotFound());
 	}
 	

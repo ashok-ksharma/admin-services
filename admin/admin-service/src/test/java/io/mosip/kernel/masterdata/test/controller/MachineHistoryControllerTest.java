@@ -66,12 +66,10 @@ public class MachineHistoryControllerTest {
 	@Test
 	@WithUserDetails("global-admin")
 	public void getMachineHistoryIdLangEffTest_WithOutLangCode() throws Exception {
-		// Step 1b (admin-service merge): no masterdata controller maps this request, so Spring's
-		// default resolver answers 404 (NoResourceFoundException). Before the merge masterdata's exception advice was
-		// unscoped and its catch-all turned this into HTTP 500; it is now scoped to
-		// io.mosip.kernel.masterdata and does not apply when no controller matches. Intended
-		// behaviour change - revisit per admin-service-merge-plan.md Appendix D.2 if clients rely
-		// on the old 500.
+		// No masterdata controller maps this request, so Spring's default resolver answers
+		// 404 (NoResourceFoundException). masterdata's exception handler is scoped to io.mosip.kernel.masterdata and
+		// does not apply when no controller matches; as a standalone service its unscoped
+		// catch-all returned HTTP 500 here. Revisit if a client relies on that 500.
 		mockMvc.perform(MockMvcRequestBuilders.get("/machines/10001/2011-12-10T17:39:48.765Z"))
 				.andExpect(status().isNotFound());
 	}
