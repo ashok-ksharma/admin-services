@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,6 +30,9 @@ public class SwaggerConfig {
 
 	@Autowired
 	private OpenApiProperties openApiProperties;
+
+	@Value("${openapi.group.masterdata.name:Admin Master Service}")
+	private String masterdataGroupName;
 	
 	@Bean
     public OpenAPI openApi() {
@@ -49,11 +53,28 @@ public class SwaggerConfig {
 		return api;
     }
 	
+	/**
+	 * admin-service's group. Masterdata's endpoints are also served under
+	 * {@link AdminMasterdataPathConfig#ADMIN_MASTERDATA_PREFIX}; they are excluded here so they are
+	 * documented once, in masterdata's own group, and the group description says where they are.
+	 */
 	@Bean
 	public GroupedOpenApi groupedOpenApi() {
 		return GroupedOpenApi.builder().group(openApiProperties.getGroup().getName())
 				.pathsToMatch(openApiProperties.getGroup().getPaths().stream().toArray(String[]::new))
+				.pathsToExclude(AdminMasterdataPathConfig.ADMIN_MASTERDATA_PREFIX + "/**")
+				.addOpenApiCustomizer(openApi -> openApi.setInfo(withMasterdataNote(openApi.getInfo())))
 				.build();
+	}
+
+	private Info withMasterdataNote(Info info) {
+		String description = info.getDescription() == null ? "" : info.getDescription() + " ";
+		return new Info().title(info.getTitle()).version(info.getVersion()).license(info.getLicense())
+				.contact(info.getContact()).termsOfService(info.getTermsOfService())
+				.description(description + "All masterdata endpoints are also served under "
+						+ AdminMasterdataPathConfig.ADMIN_MASTERDATA_PREFIX + "/**, with the same requests and "
+						+ "responses as under " + ApiPathPrefixConfig.MASTERDATA_PREFIX + "/**; they are documented "
+						+ "in the '" + masterdataGroupName + "' group.");
 	}
 	
 }

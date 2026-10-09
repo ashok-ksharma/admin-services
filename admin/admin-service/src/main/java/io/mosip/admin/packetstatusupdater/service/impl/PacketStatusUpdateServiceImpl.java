@@ -52,10 +52,6 @@ public class PacketStatusUpdateServiceImpl implements PacketStatusUpdateService 
 	@Value("${mosip.kernel.packet-status-update-url}")
 	private String packetUpdateStatusUrl;
 
-	/** The zone validation url. */
-	@Value("${mosip.kernel.zone-validation-url}")
-	private String zoneValidationUrl;
-
 	@Value("${mosip.supported-languages}")
 	private String supportedLang;
 

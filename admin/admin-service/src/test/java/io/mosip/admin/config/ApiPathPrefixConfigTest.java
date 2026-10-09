@@ -70,7 +70,7 @@ public class ApiPathPrefixConfigTest {
 		// Sampled across the controllers that had no class-level @RequestMapping and therefore
 		// relied entirely on the context-path for their /v1/admin prefix.
 		for (String expected : List.of("/v1/admin/roles", "/v1/admin/bulkupload", "/v1/admin/lostRid",
-				"/v1/admin/packetstatusupdate", "/v1/admin/masterdata/**")) {
+				"/v1/admin/packetstatusupdate")) {
 			assertTrue("Expected mapping " + expected + " is missing; mapped patterns were " + patterns,
 					patterns.contains(expected));
 		}

@@ -2,15 +2,17 @@ package io.mosip.admin.bulkdataupload.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.admin.adapter.masterdata.MachineAdapter;
 import io.mosip.admin.bulkdataupload.dto.*;
 import io.mosip.admin.packetstatusupdater.util.RestClient;
 import io.mosip.commons.packet.facade.PacketReader;
 import io.mosip.commons.packet.spi.IPacketCryptoService;
-import io.mosip.kernel.core.http.ResponseWrapper;
+import io.mosip.kernel.core.exception.BaseUncheckedException;
 import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.core.util.DateUtils2;
 import io.mosip.kernel.core.util.FileUtils;
 import io.mosip.kernel.core.util.HMACUtils2;
+import io.mosip.kernel.masterdata.dto.MachineRegistrationCenterDto;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
@@ -58,6 +60,9 @@ public class PacketUploadService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private MachineAdapter machineAdapter;
+
     @Value("${object.store.base.location:home}")
     private String baseLocation;
 
@@ -85,9 +90,6 @@ public class PacketUploadService {
     @Value("${mosip.optional-languages}")
     private String optionalLanguages;
 
-    @Value("${MACHINE_GET_API}")
-    private String MACHINE_GET_API;
-
     private String language;
 
     @PostConstruct
@@ -103,37 +105,21 @@ public class PacketUploadService {
     }
 
 
+    /**
+     * All machines mapped to the given centre, newest first - the order
+     * {@link #syncRegistration} tries them in when decrypting the packet. Any failure yields an
+     * empty list, which the caller reports as "No machines found for the provided centerId".
+     */
     public List<MachineRegistrationCenterDto> getMachineList(String centerId) {
-        List<MachineRegistrationCenterDto> machineList = new ArrayList<>();
         try {
-            PageDto<MachineRegistrationCenterDto> pageDto = null;
-            int pageNo = 0;
-
-            do {
-                UriComponentsBuilder builder = UriComponentsBuilder.fromUriString(MACHINE_GET_API).pathSegment(centerId);
-                builder.queryParam("pageNumber", pageNo++);
-
-                ResponseEntity<String> responseEntity = restTemplate.getForEntity(builder.build().toUri(), String.class);
-                ResponseWrapper<PageDto<MachineRegistrationCenterDto>> response = objectMapper.readValue(responseEntity.getBody(),
-                        new TypeReference<ResponseWrapper<PageDto<MachineRegistrationCenterDto>>>() {});
-
-                if(response.getErrors() != null && !response.getErrors().isEmpty()) {
-                    logger.error("Failed to fetch machines mapped to center : {} {} {} {}", centerId,
-                            response.getErrors().get(0).getErrorCode(), response.getErrors().get(0).getMessage(), pageNo);
-                    break;
-                }
-
-                pageDto = response.getResponse();
-                if(pageDto != null) {
-                    machineList.addAll(pageDto.getData());
-                }
-
-            } while (pageDto != null && pageNo < pageDto.getTotalPages());
-
+            return machineAdapter.getMachinesMappedToCenter(centerId);
+        } catch (BaseUncheckedException e) {
+            logger.error("Failed to fetch machines mapped to center : {} {} {}", centerId, e.getErrorCode(),
+                    e.getErrorText());
         } catch (Exception e) {
             logger.error("Failed to fetch machines mapped to center : {}", centerId, e);
         }
-        return machineList;
+        return List.of();
     }
 
     public PacketUploadStatus syncAndUploadPacket(String fileName, byte[] file, String centerId, String supervisorStatus,

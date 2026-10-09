@@ -101,9 +101,6 @@ public class IntegratedControllerTest {
 	@Value("${LOST_RID_API}")
 	private String lostRIDUrl;
 
-	@Value("${mosip.kernel.zone-validation-url}")
-	private String zoneAuthorizeUrl;
-
 	private MockRestServiceServer mockRestServiceServer;
 
 	BulkUploadTranscation bulkUploadTranscation;

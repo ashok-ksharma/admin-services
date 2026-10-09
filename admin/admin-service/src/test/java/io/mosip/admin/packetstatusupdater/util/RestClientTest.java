@@ -37,7 +37,7 @@ public class RestClientTest {
     @Test
     public void postApi_withValidInput_thenSuccess() throws Exception {
 
-        ApiName apiName = ApiName.MACHINE_GET_API;
+        ApiName apiName = ApiName.LOST_RID_API;
         List<String> pathsegments =List.of("hi","hello","welcome");
         String queryParamName = "name";
         String queryParamValue = "value";
@@ -132,7 +132,7 @@ public class RestClientTest {
 
     @Test
     public void getApi_withValidInput_thenSuccess() throws Exception {
-        ApiName apiName = ApiName.MACHINE_GET_API;
+        ApiName apiName = ApiName.LOST_RID_API;
         List<String> pathsegments = List.of("hi","hello","welcome");
         String queryParamName = "name";
         String queryParamValue = "value";
@@ -172,7 +172,7 @@ public class RestClientTest {
         ArrayList<String> stringList = new ArrayList<>();
         stringList.add("RestClientTest");
 
-        assertNull(restClient.getApi(ApiName.MACHINE_GET_API, stringList, "Query Param Name", "42", Object.class));
+        assertNull(restClient.getApi(ApiName.LOST_RID_API, stringList, "Query Param Name", "42", Object.class));
         verify(environment).getProperty(any());
         verify(restTemplate).exchange(any(), any(), any(), (Class<Object>) any());
     }
@@ -212,7 +212,7 @@ public class RestClientTest {
         when(httpEntity.getBody()).thenThrow(new ClassCastException());
         when(httpEntity.getHeaders()).thenReturn(httpHeaders);
 
-        assertEquals("Post For Object", restClient.postApi(ApiName.MACHINE_GET_API, pathsegments, "Query Param Name",
+        assertEquals("Post For Object", restClient.postApi(ApiName.LOST_RID_API, pathsegments, "Query Param Name",
                 "42", mediaType, httpEntity, Object.class));
         verify(environment).getProperty(any());
         verify(restTemplate).postForObject(any(), any(), any(), (Object[]) any());

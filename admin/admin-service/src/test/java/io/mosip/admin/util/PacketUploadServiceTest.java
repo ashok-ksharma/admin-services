@@ -4,9 +4,7 @@ import java.io.ByteArrayInputStream;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.admin.TestBootApplication;
-import io.mosip.admin.bulkdataupload.dto.MachineRegistrationCenterDto;
 import io.mosip.admin.bulkdataupload.dto.PacketUploadStatus;
-import io.mosip.admin.bulkdataupload.dto.PageDto;
 import io.mosip.admin.bulkdataupload.dto.ValueDto;
 import io.mosip.admin.bulkdataupload.service.PacketUploadService;
 import io.mosip.commons.packet.dto.Packet;
@@ -14,6 +12,8 @@ import io.mosip.commons.packet.exception.PacketKeeperException;
 import io.mosip.commons.packet.impl.OnlinePacketCryptoServiceImpl;
 import io.mosip.commons.packet.keeper.PacketKeeper;
 import io.mosip.kernel.core.http.ResponseWrapper;
+import io.mosip.kernel.masterdata.dto.MachineRegistrationCenterDto;
+import io.mosip.admin.adapter.masterdata.MachineAdapter;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.json.JSONException;
 import org.junit.Assert;
@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -63,14 +64,14 @@ public class PacketUploadServiceTest {
     @Autowired
     private PacketKeeper packetKeeper;
 
+    @MockBean
+    private MachineAdapter machineAdapter;
+
     @Value("${mosip.admin.packetupload.packetsync.url}")
     private String packetSyncURL;
 
     @Value("${mosip.kernel.packet-reciever-api-url}")
     private String packetReceiverURL;
-
-    @Value("${MACHINE_GET_API}")
-    private String MACHINE_GET_API;
 
     @Value("${object.store.base.location:home}")
     private String baseLocation;
@@ -106,51 +107,39 @@ public class PacketUploadServiceTest {
     }
 
     @Test
-    public void getMachineListTest() throws JsonProcessingException {
-        ResponseWrapper<PageDto<List<MachineRegistrationCenterDto>>> responseWrapper = new ResponseWrapper<>();
-        MachineRegistrationCenterDto machineRegistrationCenterDto = new MachineRegistrationCenterDto();
-        machineRegistrationCenterDto.setId("1111");
-        machineRegistrationCenterDto.setRegCentId("111111");
-        List<MachineRegistrationCenterDto> list = new ArrayList<>();
-        list.add(machineRegistrationCenterDto);
-        PageDto pageDto = new PageDto();
-        pageDto.setPageNo(0);
-        pageDto.setData(list);
-        pageDto.setTotalPages(1);
-        pageDto.setTotalItems(1);
-        responseWrapper.setResponse(pageDto);
-        mockRestServiceServer.expect(MockRestRequestMatchers.requestTo(
-                        MACHINE_GET_API + "111111?pageNumber=0"))
-                .andRespond(MockRestResponseCreators.withSuccess()
-                        .body(objectMapper.writeValueAsString(responseWrapper))
-                        .contentType(MediaType.APPLICATION_JSON_UTF8));
+    public void getMachineListTest() {
+        List<MachineRegistrationCenterDto> machines = List.of(machine("2222", "111111"), machine("1111", "111111"));
+        Mockito.when(machineAdapter.getMachinesMappedToCenter("111111"))
+                .thenReturn(machines);
 
         List<MachineRegistrationCenterDto> result = packetUploadService.getMachineList("111111");
-        Assert.assertNotNull(result);
-        Assert.assertEquals(list.size(), result.size());
-        Assert.assertEquals(list.get(0).getId(), result.get(0).getId());
+
+        Assert.assertEquals(2, result.size());
+        Assert.assertEquals("2222", result.get(0).getId());
+        Assert.assertEquals("1111", result.get(1).getId());
+    }
+
+    @Test
+    public void getMachineListNoMachinesTest() {
+        Mockito.when(machineAdapter.getMachinesMappedToCenter("111111"))
+                .thenReturn(List.of());
+
+        Assert.assertTrue(packetUploadService.getMachineList("111111").isEmpty());
+    }
+
+    @Test
+    public void getMachineListExceptionTest() {
+        Mockito.when(machineAdapter.getMachinesMappedToCenter("111111"))
+                .thenThrow(new RuntimeException("database unavailable"));
+
+        Assert.assertTrue(packetUploadService.getMachineList("111111").isEmpty());
     }
 
     @Test
     @WithUserDetails("packet-admin")
     public void syncAndUploadPacketTest() throws IOException, JSONException {
-        ResponseWrapper<PageDto<List<MachineRegistrationCenterDto>>> responseWrapper = new ResponseWrapper<>();
-        MachineRegistrationCenterDto machineRegistrationCenterDto = new MachineRegistrationCenterDto();
-        machineRegistrationCenterDto.setId("10107");
-        machineRegistrationCenterDto.setRegCentId("10003");
-        List<MachineRegistrationCenterDto> list = new ArrayList<>();
-        list.add(machineRegistrationCenterDto);
-        PageDto pageDto = new PageDto();
-        pageDto.setPageNo(0);
-        pageDto.setData(list);
-        pageDto.setTotalPages(1);
-        pageDto.setTotalItems(1);
-        responseWrapper.setResponse(pageDto);
-        mockRestServiceServer.expect(MockRestRequestMatchers.requestTo(
-                        MACHINE_GET_API + "10003?pageNumber=0"))
-                .andRespond(MockRestResponseCreators.withSuccess()
-                        .body(objectMapper.writeValueAsString(responseWrapper))
-                        .contentType(MediaType.APPLICATION_JSON_UTF8));
+        Mockito.when(machineAdapter.getMachinesMappedToCenter("10003"))
+                .thenReturn(List.of(machine("10107", "10003")));
 
         ResponseWrapper<String> syncResponse = new ResponseWrapper<>();
         syncResponse.setResponse("successful rid sync");
@@ -183,5 +172,12 @@ public class PacketUploadServiceTest {
                 "erwrwerwerwerwer");
 
         Assert.assertNotNull(packetUploadStatus);
+    }
+
+    private static MachineRegistrationCenterDto machine(String id, String centerId) {
+        MachineRegistrationCenterDto machine = new MachineRegistrationCenterDto();
+        machine.setId(id);
+        machine.setRegCentId(centerId);
+        return machine;
     }
 }

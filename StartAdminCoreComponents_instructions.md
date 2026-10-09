@@ -35,7 +35,6 @@ Before you start any of the steps, you should be aware of the following technica
 // this one property will be modify after we will work in registration processor
 mosip.kernel.packet-status-update-url=http://<IP>:<PORT>/registrationprocessor/v1/registrationtransaction/search
 
-mosip.kernel.zone-validation-url=http://localhost:8086/v1/masterdata/zones/authorize
 mosip.kernel.registrationcenterid.length=5 
 
 mosip.kernel.audit.manager.api=http://localhost:8081/v1/auditmanager/audits

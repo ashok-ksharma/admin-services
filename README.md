@@ -22,7 +22,7 @@ For a complete functional overview and capabilities, refer to the **[official do
 The Admin module contains the following services:
 
 1. **[Admin Service](https://github.com/mosip/admin-services/tree/release-1.3.x/admin/admin-service)** - Core administrative functionality
-2. **[Masterdata Service](https://github.com/mosip/admin-services/tree/release-1.3.x/admin/kernel-masterdata-service)** - Master data management
+2. **Masterdata Service** - Master data management, served by Admin Service under `/v1/masterdata` (see [README-masterdata.md](admin/admin-service/README-masterdata.md))
 3. **[Sync Data Service](https://github.com/mosip/admin-services/tree/release-1.3.x/admin/kernel-syncdata-service)** - Data synchronization
 4. **[Hotlist Service](https://github.com/mosip/admin-services/tree/release-1.3.x/admin/hotlist-service)** - Hotlist management
 

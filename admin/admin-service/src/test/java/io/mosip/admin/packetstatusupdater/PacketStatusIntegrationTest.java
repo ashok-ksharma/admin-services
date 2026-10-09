@@ -49,10 +49,6 @@ public class PacketStatusIntegrationTest {
 	@Value("${mosip.kernel.packet-status-update-url}")
 	private String packetUpdateStatusUrl;
 
-	/** The zone validation url. */
-	@Value("${mosip.kernel.zone-validation-url}")
-	private String zoneValidationUrl;
-	
 	@Value("${KEYBASEDTOKENAPI}")
 	private String tokenUrl;
 	

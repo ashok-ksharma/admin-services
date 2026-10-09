@@ -2,6 +2,7 @@ package io.mosip.admin;
 
 import io.mosip.commons.packet.impl.OnlinePacketCryptoServiceImpl;
 import io.mosip.commons.packet.keeper.PacketKeeper;
+import io.mosip.kernel.masterdata.service.MachineService;
 
 import javax.validation.Validator;
 
@@ -43,5 +44,14 @@ public class TestBootApplication {
 	@Bean
 	public Validator validator() {
 		return Mockito.mock(Validator.class);
+	}
+
+	// masterdata is not scanned in admin's test contexts; admin reaches masterdata only through
+	// the adapters in io.mosip.admin.adapter.masterdata, and MachineAdapter needs masterdata's
+	// MachineService. Application-wide wiring, with the real bean, is covered by
+	// FullApplicationContextTest.
+	@Bean
+	public MachineService machineService() {
+		return Mockito.mock(MachineService.class);
 	}
 }
