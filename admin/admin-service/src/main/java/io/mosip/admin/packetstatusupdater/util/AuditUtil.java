@@ -197,10 +197,10 @@ public class AuditUtil {
 		auditRequestDto.setEventId(eventEnum.getEventId());
 		auditRequestDto.setId(eventEnum.getId());
 		auditRequestDto.setIdType(eventEnum.getIdType());
-		//if current profile is local or dev donot call this method
+		//if current profile is local or test do not call this method
 		if(Arrays.stream(env.getActiveProfiles().length == 0 ?
 				env.getDefaultProfiles() : env.getActiveProfiles()).anyMatch(
-				environment -> (environment.equalsIgnoreCase("local1") ||
+				environment -> (environment.equalsIgnoreCase("local") ||
 						environment.equalsIgnoreCase("test")) )) {
 			LOGGER.info("Recieved Audit : {}",auditRequestDto.toString());
 		} else {

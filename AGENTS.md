@@ -92,7 +92,7 @@ All services are stateless and validate tokens via `kernel-auth-adapter` (OpenID
 
 ### Configuration
 
-All properties are externalized to a Spring Cloud Config Server. Local development uses `application-local.properties` or `application-local1.properties`. Secrets (DB passwords, Keycloak client secrets) must come via environment variables, never in property files:
+All properties are externalized to a Spring Cloud Config Server. Local development also reads from the config server (`bootstrap.properties` sets the config server URI, label and `spring.profiles.active`). Secrets (DB passwords, Keycloak client secrets) must come via environment variables, never in property files:
 
 | Property | Purpose |
 |---|---|

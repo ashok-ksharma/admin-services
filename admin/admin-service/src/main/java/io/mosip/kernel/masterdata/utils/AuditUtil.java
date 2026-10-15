@@ -66,10 +66,13 @@ import io.mosip.kernel.masterdata.exception.ValidationException;
  *   - callAuditManager is the method that throws, and it is shared, so a single class
  *     would have to pick one error-code set - changing the code returned on audit failure
  *     for whichever service lost.
- *   - They also skip auditing on different profiles: local1 (admin) vs local (here).
+ *   - Both log the audit instead of calling the audit manager when the profile is local or
+ *     test. They differ in which profiles they check: admin's AuditUtil checks the active
+ *     profiles, or the default profiles if none is active; this class checks only the
+ *     active profiles.
  *
  * Parameterising all of that per entry point would leave one class carrying two error-code
- * sets, two exception types and two profile rules, which is not a simplification.
+ * sets, two exception types and two profile-lookup rules, which is not a simplification.
  */
 @Component("masterdataAuditUtil")
 public class AuditUtil {
