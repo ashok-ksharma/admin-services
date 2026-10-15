@@ -66,12 +66,9 @@ public class MachineHistoryControllerTest {
 	@Test
 	@WithUserDetails("global-admin")
 	public void getMachineHistoryIdLangEffTest_WithOutLangCode() throws Exception {
-		// No masterdata controller maps this request, so Spring's default resolver answers
-		// 404 (NoResourceFoundException). masterdata's exception handler is scoped to io.mosip.kernel.masterdata and
-		// does not apply when no controller matches; as a standalone service its unscoped
-		// catch-all returned HTTP 500 here. Revisit if a client relies on that 500.
-		mockMvc.perform(MockMvcRequestBuilders.get("/machines/10001/2011-12-10T17:39:48.765Z"))
-				.andExpect(status().isNotFound());
+		// No controller maps this request; masterdata's catch-all answers it with KER-MSD-500.
+		MasterDataTest.checkUnmappedRequestResponse(mockMvc.perform(
+				MasterDataTest.getOnMasterdataPath("/machines/10001/2011-12-10T17:39:48.765Z")).andReturn());
 	}
 	
 

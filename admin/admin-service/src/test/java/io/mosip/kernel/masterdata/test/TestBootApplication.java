@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Import;
 
 import io.mosip.admin.config.CommonConfig;
 import io.mosip.admin.config.MasterDataSourceConfig;
+import io.mosip.admin.config.UnmappedPathExceptionHandler;
 import io.mosip.admin.packetstatusupdater.util.RestClient;
 import io.mosip.kernel.masterdata.test.config.TestConfig;
 import io.mosip.kernel.masterdata.test.config.TestSecurityConfig;
@@ -27,7 +28,8 @@ import io.mosip.kernel.masterdata.test.config.TestSecurityConfig;
 // scan, and is needed by PacketWorkflowActionServiceImpl. CommonConfig registers ReqResFilter
 // (ContentCachingRequestWrapper) for every request, as it does in the merged application;
 // masterdata no longer registers its own copy of that filter, and its exception handler
-// and response-body advice read the cached request body.
+// and response-body advice read the cached request body. UnmappedPathExceptionHandler answers
+// requests that no controller maps under /v1/masterdata, as it does in the application.
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
 @ComponentScan(basePackages = {"io.mosip.kernel.masterdata.*","io.mosip.kernel.core.datamapper.*",
@@ -35,7 +37,7 @@ import io.mosip.kernel.masterdata.test.config.TestSecurityConfig;
 		,"io.mosip.kernel.websub.api.*","io.mosip.kernel.applicanttype.*","io.mosip.kernel.core.idgenerator.*"}
 )
 @Import(value = {TestConfig.class, TestSecurityConfig.class, MasterDataSourceConfig.class, RestClient.class,
-		CommonConfig.class})
+		CommonConfig.class, UnmappedPathExceptionHandler.class})
 public class TestBootApplication {
 
 	/**

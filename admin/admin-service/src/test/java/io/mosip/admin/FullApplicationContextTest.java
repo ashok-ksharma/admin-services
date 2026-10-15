@@ -98,8 +98,8 @@ import jakarta.persistence.EntityManagerFactory;
  * {@code /v1/admin}, masterdata's under {@code /v1/masterdata}.</li>
  * <li>Actuator and the API documentation stay under {@code /v1/admin}.</li>
  * <li>Each Swagger group documents only its own service's endpoints.</li>
- * <li>Each service's errors keep that service's error shape; unmapped requests get the
- * standard 404/405.</li>
+ * <li>Each service's errors keep that service's error shape; unmapped requests under the admin or
+ * masterdata prefix get that service's KER-MSD-500 error, all others the standard 404/405.</li>
  * <li>Lazy associations can be read while the response is built (open-session-in-view on
  * the services that use it).</li>
  * <li>Masterdata's endpoints are also served under {@code /v1/admin/masterdata} with the same
@@ -351,10 +351,33 @@ public class FullApplicationContextTest {
 		// admin business error: admin's error codes
 		mockMvc.perform(get("/v1/admin/bulkupload/transcation/no-such-transaction"))
 				.andExpect(jsonPath("$.errors[0].errorCode").value("ADMN-BLK-TRNSCTNS-001"));
-		// no controller maps the request: Spring's standard responses
-		mockMvc.perform(get("/v1/masterdata/no-such-path")).andExpect(status().isNotFound());
+		// wrong method on a mapped path: Spring's standard response
 		mockMvc.perform(put("/v1/masterdata/devices/1000").contentType(MediaType.APPLICATION_JSON))
 				.andExpect(status().isMethodNotAllowed());
+	}
+
+	@Test
+	@WithUserDetails("global-admin")
+	public void unmappedRequestUnderAdminOrMasterdataPrefixReturnsInternalServerError() throws Exception {
+		// answered by the owning service's catch-all with its KER-MSD-500 error
+		for (String path : List.of("/v1/masterdata/no-such-path", "/v1/admin/no-such-path",
+				// admin's catch-all covered everything under its context-path, actuator included
+				ApiPathPrefixConfig.ADMIN_PREFIX + "/actuator/no-such-endpoint",
+				// empty trailing path variable, as sent by the API test rig
+				"/v1/masterdata/registrationcenters/page/eng/5/")) {
+			mockMvc.perform(get(path))
+					.andExpect(status().isInternalServerError())
+					.andExpect(jsonPath("$.errors[0].errorCode").value("KER-MSD-500"));
+		}
+	}
+
+	@Test
+	@WithUserDetails("global-admin")
+	public void unmappedRequestOutsideAdminAndMasterdataPrefixesReturnsNotFound() throws Exception {
+		// prefixes this application does not serve, and unknown roots
+		for (String path : List.of("/v1/hotlist/no-such-path", "/v1/syncdata/no-such-path", "/no-such-root")) {
+			mockMvc.perform(get(path)).andExpect(status().isNotFound());
+		}
 	}
 
 	// 7 -----------------------------------------------------------------------------------
@@ -395,9 +418,10 @@ public class FullApplicationContextTest {
 	public void masterdataErrorsAreTheSameUnderTheAdminPrefix() throws Exception {
 		// business error
 		assertSameResponse("/packetrejectionreasons/NOSUCHCATEGORY/eng", "global-admin");
-		// no controller maps the request
+		// no controller maps the request (the message echoes the requested path, so only the code is compared)
 		mockMvc.perform(get(AdminMasterdataPathConfig.ADMIN_MASTERDATA_PREFIX + "/no-such-path"))
-				.andExpect(status().isNotFound());
+				.andExpect(status().isInternalServerError())
+				.andExpect(jsonPath("$.errors[0].errorCode").value("KER-MSD-500"));
 		mockMvc.perform(put(AdminMasterdataPathConfig.ADMIN_MASTERDATA_PREFIX + "/devices/1000")
 				.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isMethodNotAllowed());
 	}

@@ -1,10 +1,13 @@
 package io.mosip.kernel.masterdata.test.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.mosip.admin.config.ApiPathPrefixConfig;
 import io.mosip.kernel.core.http.RequestWrapper;
 import io.mosip.kernel.masterdata.dto.SearchDtoWithoutLangCode;
 import io.mosip.kernel.masterdata.dto.request.*;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +44,23 @@ public class MasterDataTest {
 
 	public static void checkErrorResponse(MvcResult rst) {
 		assertEquals(rst.getResponse().getStatus(), 500);
+	}
+
+	/**
+	 * GET on masterdata's external path, as a client sends it. This test context maps
+	 * masterdata's controllers without the /v1/masterdata prefix, so the prefix is passed as
+	 * the context path: controllers resolve as usual and the full URI carries the prefix.
+	 */
+	public static MockHttpServletRequestBuilder getOnMasterdataPath(String path) {
+		return MockMvcRequestBuilders.get(ApiPathPrefixConfig.MASTERDATA_PREFIX + path)
+				.contextPath(ApiPathPrefixConfig.MASTERDATA_PREFIX);
+	}
+
+	/** No controller maps the request: masterdata's catch-all answers HTTP 500 with KER-MSD-500. */
+	public static void checkUnmappedRequestResponse(MvcResult rst) throws Exception {
+		checkErrorResponse(rst);
+		Map m = new ObjectMapper().readValue(rst.getResponse().getContentAsString(), Map.class);
+		assertEquals("KER-MSD-500", getErrorCode(m));
 	}
 
 	public static RequestWrapper<SearchDtoWithoutLangCode> commonSearchDtoWithoutLangCode(String sortField,

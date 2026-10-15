@@ -1732,11 +1732,9 @@ public class IntegratedRepositoryTest {
 				.thenThrow(new DataAccessException("...") {
 				});
 
-		// No masterdata controller maps this request, so Spring's default resolver answers
-		// 404 (NoResourceFoundException). masterdata's exception handler is scoped to io.mosip.kernel.masterdata and
-		// does not apply when no controller matches; as a standalone service its unscoped
-		// catch-all returned HTTP 500 here. Revisit if a client relies on that 500.
-		mockMvc.perform(MockMvcRequestBuilders.get("/users/0/1/cr_dtimes/DESC")).andExpect(status().isNotFound());
+		// No controller maps this request; masterdata's catch-all answers it with KER-MSD-500.
+		MasterDataTest.checkUnmappedRequestResponse(mockMvc.perform(
+				MasterDataTest.getOnMasterdataPath("/users/0/1/cr_dtimes/DESC")).andReturn());
 
 	}
 
@@ -2137,12 +2135,9 @@ public class IntegratedRepositoryTest {
 				.thenThrow(new DataAccessException("...") {
 				});
 		// ZoneController#authorizeZone (GET /zones/authorize) is commented out, so nothing maps this.
-		// No masterdata controller maps this request, so Spring's default resolver answers
-		// 404 (NoResourceFoundException). masterdata's exception handler is scoped to io.mosip.kernel.masterdata and
-		// does not apply when no controller matches; as a standalone service its unscoped
-		// catch-all returned HTTP 500 here. Revisit if a client relies on that 500.
-		mockMvc.perform(MockMvcRequestBuilders.get("/zones/authorize").param("rid", "10001"))
-				.andExpect(status().isNotFound());
+		// No controller maps this request; masterdata's catch-all answers it with KER-MSD-500.
+		MasterDataTest.checkUnmappedRequestResponse(mockMvc.perform(
+				MasterDataTest.getOnMasterdataPath("/zones/authorize").param("rid", "10001")).andReturn());
 	}
 
 	@Test
@@ -2257,11 +2252,9 @@ public class IntegratedRepositoryTest {
 	public void getUsersTest_withDeletionIsNull() throws Exception {
 		when(userDetailsRepository.findAllByIsDeletedFalseorIsDeletedIsNull(Mockito.any())).thenReturn(null);
 		
-		// No masterdata controller maps this request, so Spring's default resolver answers
-		// 404 (NoResourceFoundException). masterdata's exception handler is scoped to io.mosip.kernel.masterdata and
-		// does not apply when no controller matches; as a standalone service its unscoped
-		// catch-all returned HTTP 500 here. Revisit if a client relies on that 500.
-		mockMvc.perform(MockMvcRequestBuilders.get("/users/0/1/cr_dtimes/DESC")).andExpect(status().isNotFound());
+		// No controller maps this request; masterdata's catch-all answers it with KER-MSD-500.
+		MasterDataTest.checkUnmappedRequestResponse(mockMvc.perform(
+				MasterDataTest.getOnMasterdataPath("/users/0/1/cr_dtimes/DESC")).andReturn());
 	}
 	
 	
@@ -2458,11 +2451,9 @@ public class IntegratedRepositoryTest {
 	@WithUserDetails("reg-processor")
 	public void getUsersTest_withDeletionIsAny() throws Exception {
 		when(userDetailsRepository.findAllByIsDeletedFalseorIsDeletedIsNull(Mockito.any())).thenReturn(null);
-		// No masterdata controller maps this request, so Spring's default resolver answers
-		// 404 (NoResourceFoundException). masterdata's exception handler is scoped to io.mosip.kernel.masterdata and
-		// does not apply when no controller matches; as a standalone service its unscoped
-		// catch-all returned HTTP 500 here. Revisit if a client relies on that 500.
-		mockMvc.perform(MockMvcRequestBuilders.get("/users/0/1/cr_dtimes/DESC")).andExpect(status().isNotFound());
+		// No controller maps this request; masterdata's catch-all answers it with KER-MSD-500.
+		MasterDataTest.checkUnmappedRequestResponse(mockMvc.perform(
+				MasterDataTest.getOnMasterdataPath("/users/0/1/cr_dtimes/DESC")).andReturn());
 	}
 	
 }
