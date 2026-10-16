@@ -335,11 +335,16 @@ public class FullApplicationContextTest {
 				adminPaths.stream().noneMatch(p -> p.startsWith(ApiPathPrefixConfig.MASTERDATA_PREFIX + "/")
 						|| p.startsWith(AdminMasterdataPathConfig.ADMIN_MASTERDATA_PREFIX + "/")));
 
-		String note = "also served under " + AdminMasterdataPathConfig.ADMIN_MASTERDATA_PREFIX;
+		String note = "also served under `" + AdminMasterdataPathConfig.ADMIN_MASTERDATA_PREFIX + "/**`";
 		assertTrue("Admin group description lacks the masterdata note",
 				description(adminGroup).contains(note));
 		assertFalse("Masterdata group description carries admin's note",
 				description(masterdataGroup).contains(note));
+		// each group shows its own service's header, as each service's own Swagger UI did before the merge
+		assertEquals("Admin Service", info(adminGroup).path("title").asText());
+		assertTrue(description(adminGroup).startsWith("Admin Service for CRUD\n\nAll masterdata endpoints"));
+		assertEquals("Admin Master Service", info(masterdataGroup).path("title").asText());
+		assertEquals("Admin Master for CRUD", description(masterdataGroup));
 	}
 
 	// 6 -----------------------------------------------------------------------------------
@@ -477,9 +482,13 @@ public class FullApplicationContextTest {
 	}
 
 	private String description(String group) throws Exception {
+		return info(group).path("description").asText();
+	}
+
+	private JsonNode info(String group) throws Exception {
 		String body = mockMvc.perform(get(ApiPathPrefixConfig.ADMIN_PREFIX + "/v3/api-docs/{group}", group))
 				.andExpect(status().isOk()).andReturn().getResponse().getContentAsString();
-		return objectMapper.readTree(body).path("info").path("description").asText();
+		return objectMapper.readTree(body).path("info");
 	}
 
 	private Set<String> documentedPaths(String group) throws Exception {

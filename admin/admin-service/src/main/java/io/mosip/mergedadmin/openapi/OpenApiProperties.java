@@ -18,6 +18,19 @@ public class OpenApiProperties {
 	private InfoProperty info;
 	private Service service;
 	private Group group;
+
+	/**
+	 * {@code openapi.group.name} - admin's Swagger group, read by {@code AdminSwaggerConfig}
+	 * outside this package (the {@code Group} type is package-private).
+	 */
+	public String groupName() {
+		return group == null ? null : group.getName();
+	}
+
+	/** {@code openapi.group.paths} - see {@link #groupName()}. */
+	public List<String> groupPaths() {
+		return group == null || group.getPaths() == null ? List.of() : group.getPaths();
+	}
 }
 
 /**

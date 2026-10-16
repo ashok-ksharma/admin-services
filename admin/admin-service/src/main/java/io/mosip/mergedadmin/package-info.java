@@ -5,10 +5,13 @@
  * package:
  * <ul>
  * <li>{@code AdminBootApplication} - component scan of the service's packages;</li>
- * <li>{@code web.ApiPathPrefixConfig} - the service's URL prefix for its controller package;</li>
- * <li>{@code web.UnmappedPathExceptionHandler} - which service's error handler answers unmapped
- * requests under its prefix;</li>
- * <li>{@code openapi.SwaggerConfig} - the application's OpenAPI description and Swagger UI;</li>
+ * <li>a {@code module.ServiceModule} bean in the service's own package - its URL prefix, controller
+ * packages and the error handler for unmapped requests under its prefix, which
+ * {@code web.ApiPathPrefixConfig} and {@code web.UnmappedPathExceptionHandler} read (no edit to
+ * those two classes);</li>
+ * <li>a Swagger group bean in the service's own package (springdoc picks up every
+ * {@code GroupedOpenApi}); {@code openapi.SwaggerConfig} holds only the application's OpenAPI
+ * description and Swagger UI and is not edited;</li>
  * <li>{@code FullApplicationContextTest} (tests) - checks on the assembled application.</li>
  * </ul>
  *

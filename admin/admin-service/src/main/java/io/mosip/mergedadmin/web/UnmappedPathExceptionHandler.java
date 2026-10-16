@@ -10,11 +10,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
-import io.mosip.admin.config.AdminMasterdataPathConfig;
-import io.mosip.admin.packetstatusupdater.exception.ApiExceptionHandler;
 import io.mosip.kernel.core.exception.ServiceError;
 import io.mosip.kernel.core.http.ResponseWrapper;
-import io.mosip.masterdata.exception.MasterDataApiExceptionHandler;
+import io.mosip.mergedadmin.module.ServiceModule;
 
 /**
  * Restores each service's pre-merge response for requests that no controller maps.
@@ -35,9 +33,10 @@ import io.mosip.masterdata.exception.MasterDataApiExceptionHandler;
  * unmapped paths under {@code /v1/admin/actuator} and the API documentation, which sat under
  * admin's context-path and were answered by its catch-all too. Any other path - unknown roots
  * and the prefixes of services not yet merged - is rethrown, which leaves Spring's default
- * 404 in place. Add a service's prefix here in the
- * step that merges it ({@code /v1/syncdata}: {@code KER-SNC-500}; {@code /v1/hotlist}:
- * {@code ADM-HTL-015} with HTTP 200).
+ * 404 in place. The prefixes and handlers come from each service's {@link ServiceModule}
+ * declaration; the longest matching prefix wins, so {@code /v1/admin/masterdata} goes to
+ * masterdata rather than admin. A merged service adds its prefix in its own declaration
+ * ({@code /v1/syncdata}: {@code KER-SNC-500}; {@code /v1/hotlist}: {@code ADM-HTL-015} with HTTP 200).
  * </p>
  *
  * <p>
@@ -48,14 +47,10 @@ import io.mosip.masterdata.exception.MasterDataApiExceptionHandler;
 @RestControllerAdvice
 public class UnmappedPathExceptionHandler {
 
-	private final ObjectProvider<ApiExceptionHandler> adminExceptionHandler;
+	private final ObjectProvider<ServiceModule> serviceModules;
 
-	private final ObjectProvider<MasterDataApiExceptionHandler> masterDataExceptionHandler;
-
-	public UnmappedPathExceptionHandler(ObjectProvider<ApiExceptionHandler> adminExceptionHandler,
-			ObjectProvider<MasterDataApiExceptionHandler> masterDataExceptionHandler) {
-		this.adminExceptionHandler = adminExceptionHandler;
-		this.masterDataExceptionHandler = masterDataExceptionHandler;
+	public UnmappedPathExceptionHandler(ObjectProvider<ServiceModule> serviceModules) {
+		this.serviceModules = serviceModules;
 	}
 
 	@ExceptionHandler(NoResourceFoundException.class)
@@ -64,18 +59,21 @@ public class UnmappedPathExceptionHandler {
 			throws IOException, NoResourceFoundException {
 		// the full URI as the client sent it - the application has no context-path
 		String path = httpServletRequest.getRequestURI();
-
-		// /v1/admin/masterdata serves masterdata's endpoints, so it answers as masterdata does
-		if (path.startsWith(ApiPathPrefixConfig.MASTERDATA_PREFIX + "/")
-				|| path.startsWith(AdminMasterdataPathConfig.ADMIN_MASTERDATA_PREFIX + "/")) {
-			MasterDataApiExceptionHandler handler = masterDataExceptionHandler.getIfAvailable();
-			if (handler != null) {
-				return handler.defaultErrorHandler(httpServletRequest, e);
+		ServiceModule owner = null;
+		String ownerPrefix = "";
+		for (ServiceModule module : serviceModules.orderedStream().toList()) {
+			for (String prefix : module.unmappedPathPrefixes()) {
+				if (path.startsWith(prefix + "/") && prefix.length() > ownerPrefix.length()) {
+					owner = module;
+					ownerPrefix = prefix;
+				}
 			}
-		} else if (path.startsWith(ApiPathPrefixConfig.ADMIN_PREFIX + "/")) {
-			ApiExceptionHandler handler = adminExceptionHandler.getIfAvailable();
-			if (handler != null) {
-				return handler.defaultErrorHandler(httpServletRequest, e);
+		}
+		if (owner != null) {
+			ResponseEntity<ResponseWrapper<ServiceError>> response = owner.unmappedRequestHandler()
+					.handle(httpServletRequest, e);
+			if (response != null) {
+				return response;
 			}
 		}
 		// rethrowing the same exception leaves it unresolved, so Spring answers with its 404

@@ -2,14 +2,10 @@ package io.mosip.mergedadmin.openapi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import io.mosip.admin.config.AdminMasterdataPathConfig;
-import io.mosip.mergedadmin.web.ApiPathPrefixConfig;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
@@ -18,6 +14,12 @@ import io.swagger.v3.oas.models.servers.Server;
 
 /**
  * Configuration class for swagger config
+ * <p>
+ * The application's single OpenAPI description and Swagger UI. Each merged service contributes its
+ * own Swagger group from its own package (admin: {@code AdminSwaggerConfig}, masterdata:
+ * {@code MasterDataSwaggerConfig}); springdoc picks up every {@code GroupedOpenApi} bean, so a
+ * merged service adds its group without editing this class.
+ * </p>
  * 
  * @author Srinivasan
  * @since 1.0.0
@@ -33,9 +35,6 @@ public class SwaggerConfig {
 	@Autowired
 	private OpenApiProperties openApiProperties;
 
-	@Value("${openapi.group.masterdata.name:Admin Master Service}")
-	private String masterdataGroupName;
-	
 	@Bean
     public OpenAPI openApi() {
 		OpenAPI api = new OpenAPI()
@@ -54,29 +53,5 @@ public class SwaggerConfig {
 			logger.info("swagger open api bean is ready");
 		return api;
     }
-	
-	/**
-	 * admin-service's group. Masterdata's endpoints are also served under
-	 * {@link AdminMasterdataPathConfig#ADMIN_MASTERDATA_PREFIX}; they are excluded here so they are
-	 * documented once, in masterdata's own group, and the group description says where they are.
-	 */
-	@Bean
-	public GroupedOpenApi groupedOpenApi() {
-		return GroupedOpenApi.builder().group(openApiProperties.getGroup().getName())
-				.pathsToMatch(openApiProperties.getGroup().getPaths().stream().toArray(String[]::new))
-				.pathsToExclude(AdminMasterdataPathConfig.ADMIN_MASTERDATA_PREFIX + "/**")
-				.addOpenApiCustomizer(openApi -> openApi.setInfo(withMasterdataNote(openApi.getInfo())))
-				.build();
-	}
 
-	private Info withMasterdataNote(Info info) {
-		String description = info.getDescription() == null ? "" : info.getDescription() + " ";
-		return new Info().title(info.getTitle()).version(info.getVersion()).license(info.getLicense())
-				.contact(info.getContact()).termsOfService(info.getTermsOfService())
-				.description(description + "All masterdata endpoints are also served under "
-						+ AdminMasterdataPathConfig.ADMIN_MASTERDATA_PREFIX + "/**, with the same requests and "
-						+ "responses as under " + ApiPathPrefixConfig.MASTERDATA_PREFIX + "/**; they are documented "
-						+ "in the '" + masterdataGroupName + "' group.");
-	}
-	
 }

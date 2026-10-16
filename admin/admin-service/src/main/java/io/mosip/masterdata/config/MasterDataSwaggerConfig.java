@@ -10,6 +10,7 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import io.mosip.mergedadmin.web.ApiPathPrefixConfig;
+import io.swagger.v3.oas.models.info.Info;
 
 /**
  * Keeps masterdata's API documentation reachable, and separate from admin-service's, in
@@ -51,13 +52,33 @@ public class MasterDataSwaggerConfig implements WebMvcConfigurer {
 	@Value("${openapi.group.masterdata.paths:/v1/masterdata/**}")
 	private List<String> groupPaths;
 
+	/**
+	 * Description shown in this group's header. Defaults to masterdata's own
+	 * {@code openapi.info.description} from before the merge.
+	 */
+	@Value("${openapi.group.masterdata.description:Admin Master for CRUD}")
+	private String groupDescription;
+
 	/** Where springdoc actually serves the single UI; used to build the redirect target. */
 	@Value("${springdoc.swagger-ui.path:/swagger-ui.html}")
 	private String swaggerUiPath;
 
+	/**
+	 * The application has one OpenAPI description, whose title and description are admin's. This
+	 * group shows masterdata's pre-merge title (its group name) and description instead, as
+	 * masterdata's own Swagger UI did before the merge. Licence and version are unchanged.
+	 */
 	@Bean
 	public GroupedOpenApi masterdataGroupedOpenApi() {
-		return GroupedOpenApi.builder().group(groupName).pathsToMatch(groupPaths.toArray(new String[0])).build();
+		return GroupedOpenApi.builder().group(groupName).pathsToMatch(groupPaths.toArray(new String[0]))
+				.addOpenApiCustomizer(openApi -> openApi.setInfo(withMasterdataHeader(openApi.getInfo())))
+				.build();
+	}
+
+	private Info withMasterdataHeader(Info info) {
+		Info header = info == null ? new Info() : info;
+		return new Info().title(groupName).description(groupDescription).version(header.getVersion())
+				.license(header.getLicense()).contact(header.getContact()).termsOfService(header.getTermsOfService());
 	}
 
 	/**

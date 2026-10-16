@@ -1,9 +1,12 @@
 package io.mosip.mergedadmin.web;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.HandlerTypePredicate;
 import org.springframework.web.servlet.config.annotation.PathMatchConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import io.mosip.mergedadmin.module.ServiceModule;
 
 /**
  * Re-applies each merged service's URL prefix per controller package.
@@ -22,12 +25,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * </p>
  *
  * <p>
- * {@link #ADMIN_BASE_PACKAGES} intentionally includes {@code io.mosip.kernel.authcodeflowproxy}.
- * Its {@code LoginController} is component-scanned by admin-service and declares no
- * class-level {@code @RequestMapping}, so {@code /login/**}, {@code /login-redirect/**},
- * {@code /logout/user} and {@code /authorize/admin/validateToken} were served under
- * {@code /v1/admin} by the old context-path. Omitting the package here would silently move
- * the admin UI's login endpoints to the server root.
+ * The prefixes and packages come from each service's {@link ServiceModule} declaration
+ * (admin: {@code AdminServiceModuleConfig}, masterdata: {@code MasterdataServiceModuleConfig});
+ * a merged service adds its own declaration instead of editing this class.
  * </p>
  */
 @Configuration
@@ -39,14 +39,15 @@ public class ApiPathPrefixConfig implements WebMvcConfigurer {
 	/** External URL prefix that masterdata's controllers used to get from the context-path. */
 	public static final String MASTERDATA_PREFIX = "/v1/masterdata";
 
-	private static final String[] ADMIN_BASE_PACKAGES = { "io.mosip.admin", "io.mosip.kernel.authcodeflowproxy" };
+	private final ObjectProvider<ServiceModule> serviceModules;
 
-	private static final String MASTERDATA_BASE_PACKAGE = "io.mosip.masterdata";
+	public ApiPathPrefixConfig(ObjectProvider<ServiceModule> serviceModules) {
+		this.serviceModules = serviceModules;
+	}
 
 	@Override
 	public void configurePathMatch(PathMatchConfigurer configurer) {
-		configurer.addPathPrefix(ADMIN_PREFIX, HandlerTypePredicate.forBasePackage(ADMIN_BASE_PACKAGES));
-		configurer.addPathPrefix(MASTERDATA_PREFIX, HandlerTypePredicate.forBasePackage(MASTERDATA_BASE_PACKAGE));
-		// Steps 2-3 add: /v1/syncdata, /v1/hotlist.
+		serviceModules.orderedStream().forEach(module -> configurer.addPathPrefix(module.urlPrefix(),
+				HandlerTypePredicate.forBasePackage(module.controllerPackages().toArray(new String[0]))));
 	}
 }

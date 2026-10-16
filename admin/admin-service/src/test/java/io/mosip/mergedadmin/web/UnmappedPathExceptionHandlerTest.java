@@ -8,6 +8,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.ObjectProvider;
@@ -17,15 +19,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import io.mosip.admin.config.AdminServiceModuleConfig;
 import io.mosip.admin.packetstatusupdater.exception.ApiExceptionHandler;
 import io.mosip.kernel.core.exception.ServiceError;
 import io.mosip.kernel.core.http.ResponseWrapper;
+import io.mosip.masterdata.config.MasterdataServiceModuleConfig;
 import io.mosip.masterdata.exception.MasterDataApiExceptionHandler;
+import io.mosip.mergedadmin.module.ServiceModule;
 
 /**
- * Routing of {@link UnmappedPathExceptionHandler}: each served prefix goes to that
- * service's own catch-all, everything else is rethrown so Spring answers 404. The responses
- * themselves are checked end to end in {@code FullApplicationContextTest}.
+ * Routing of {@link UnmappedPathExceptionHandler} with admin's and masterdata's real
+ * {@link ServiceModule} declarations: each served prefix goes to that service's own catch-all,
+ * everything else is rethrown so Spring answers 404. The responses themselves are checked end to
+ * end in {@code FullApplicationContextTest}.
  */
 public class UnmappedPathExceptionHandlerTest {
 
@@ -47,7 +53,7 @@ public class UnmappedPathExceptionHandlerTest {
 		masterDataHandler = mock(MasterDataApiExceptionHandler.class);
 		when(adminHandler.defaultErrorHandler(any(), any())).thenReturn(adminResponse);
 		when(masterDataHandler.defaultErrorHandler(any(), any())).thenReturn(masterDataResponse);
-		handler = new UnmappedPathExceptionHandler(provider(adminHandler), provider(masterDataHandler));
+		handler = handlerFor(adminModule(provider(adminHandler)), masterdataModule(provider(masterDataHandler)));
 	}
 
 	@Test
@@ -80,9 +86,16 @@ public class UnmappedPathExceptionHandlerTest {
 
 	@Test
 	public void missingServiceHandlerIsRethrown() throws Exception {
-		handler = new UnmappedPathExceptionHandler(provider(null), provider(null));
+		handler = handlerFor(adminModule(provider(null)), masterdataModule(provider(null)));
 		assertRethrown("/v1/masterdata/no-such-path");
 		assertRethrown("/v1/admin/no-such-path");
+	}
+
+	@Test
+	public void longestPrefixWinsWhateverTheDeclarationOrder() throws Exception {
+		handler = handlerFor(masterdataModule(provider(masterDataHandler)), adminModule(provider(adminHandler)));
+		assertSame(masterDataResponse, handle("/v1/admin/masterdata/no-such-path"));
+		assertSame(adminResponse, handle("/v1/admin/no-such-path"));
 	}
 
 	private ResponseEntity<ResponseWrapper<ServiceError>> handle(String path) throws Exception {
@@ -101,6 +114,21 @@ public class UnmappedPathExceptionHandlerTest {
 
 	private static NoResourceFoundException exception(String path) {
 		return new NoResourceFoundException(HttpMethod.GET, path.substring(1));
+	}
+
+	private static ServiceModule adminModule(ObjectProvider<ApiExceptionHandler> exceptionHandler) {
+		return new AdminServiceModuleConfig().adminServiceModule(exceptionHandler);
+	}
+
+	private static ServiceModule masterdataModule(ObjectProvider<MasterDataApiExceptionHandler> exceptionHandler) {
+		return new MasterdataServiceModuleConfig().masterdataServiceModule(exceptionHandler);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static UnmappedPathExceptionHandler handlerFor(ServiceModule... modules) {
+		ObjectProvider<ServiceModule> provider = mock(ObjectProvider.class);
+		when(provider.orderedStream()).thenAnswer(invocation -> List.of(modules).stream());
+		return new UnmappedPathExceptionHandler(provider);
 	}
 
 	@SuppressWarnings("unchecked")
