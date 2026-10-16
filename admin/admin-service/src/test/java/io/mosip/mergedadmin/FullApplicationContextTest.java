@@ -62,7 +62,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.mosip.admin.adapter.masterdata.MachineAdapter;
 import io.mosip.admin.bulkdataupload.service.PacketUploadService;
 import io.mosip.admin.config.AdminMasterdataPathConfig;
-import io.mosip.admin.config.ApiPathPrefixConfig;
+import io.mosip.mergedadmin.web.ApiPathPrefixConfig;
 import io.mosip.admin.packetstatusupdater.util.EventEnum;
 import io.mosip.commons.packet.impl.OnlinePacketCryptoServiceImpl;
 import io.mosip.commons.packet.keeper.PacketKeeper;

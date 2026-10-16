@@ -1,4 +1,4 @@
-package io.mosip.admin.config;
+package io.mosip.mergedadmin.web;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;

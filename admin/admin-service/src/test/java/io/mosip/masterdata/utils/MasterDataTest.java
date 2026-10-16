@@ -1,7 +1,7 @@
 package io.mosip.masterdata.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.mosip.admin.config.ApiPathPrefixConfig;
+import io.mosip.mergedadmin.web.ApiPathPrefixConfig;
 import io.mosip.kernel.core.http.RequestWrapper;
 import io.mosip.masterdata.dto.SearchDtoWithoutLangCode;
 import io.mosip.masterdata.dto.request.*;

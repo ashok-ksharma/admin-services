@@ -1,4 +1,4 @@
-package io.mosip.admin.config;
+package io.mosip.mergedadmin.openapi;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import io.mosip.admin.config.AdminMasterdataPathConfig;
+import io.mosip.mergedadmin.web.ApiPathPrefixConfig;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;

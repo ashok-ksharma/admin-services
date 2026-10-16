@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Import;
 
 import io.mosip.admin.config.CommonConfig;
 import io.mosip.masterdata.config.MasterDataSourceConfig;
-import io.mosip.admin.config.UnmappedPathExceptionHandler;
+import io.mosip.mergedadmin.web.UnmappedPathExceptionHandler;
 import io.mosip.admin.packetstatusupdater.util.RestClient;
 import io.mosip.masterdata.config.TestConfig;
 import io.mosip.masterdata.config.TestSecurityConfig;

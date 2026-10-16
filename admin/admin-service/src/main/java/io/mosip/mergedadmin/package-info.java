@@ -1,27 +1,23 @@
 /**
- * Shared host for the services merged into this application (admin, masterdata and, later,
- * syncdata, hotlist, partner management and the registration-processor status and sync services).
- *
- * <p>
- * Only host mechanisms belong here: the boot application and configuration that every merged
- * service uses unchanged (path routing, web configuration, and similar). A class is moved here only
- * if it contains no service-specific values (URL, package name, error code, table name) and is
- * used unchanged by two or more services.
- * </p>
- *
- * <p>
- * Everything else stays with the service that owns it: entities, repositories, DTOs, error codes,
- * exception handlers, response advices, filters, audit utilities, and datasource configuration (with
- * the service that owns the database).
- * </p>
- *
- * <p>
- * Dependency rules, enforced by {@code PackageBoundaryTest}:
- * </p>
+ * Integration layer of the merged application: the place that plugs each merged service (admin,
+ * masterdata and, later, syncdata, hotlist, partner management and the registration-processor
+ * status and sync services) into the one application. Merging a service means editing this
+ * package:
  * <ul>
- * <li>{@code io.mosip.mergedadmin} must not depend on any service package.</li>
- * <li>{@code io.mosip.masterdata} must not depend on {@code io.mosip.admin}.</li>
+ * <li>{@code AdminBootApplication} - component scan of the service's packages;</li>
+ * <li>{@code web.ApiPathPrefixConfig} - the service's URL prefix for its controller package;</li>
+ * <li>{@code web.UnmappedPathExceptionHandler} - which service's error handler answers unmapped
+ * requests under its prefix;</li>
+ * <li>{@code openapi.SwaggerConfig} - the application's OpenAPI description and Swagger UI;</li>
+ * <li>{@code FullApplicationContextTest} (tests) - checks on the assembled application.</li>
  * </ul>
+ *
+ * <p>
+ * Besides these, only configuration that every service uses unchanged belongs here (for example
+ * {@code web.AntPathMatcherConfig}). Everything else stays with the service that owns it: entities,
+ * repositories, DTOs, error codes, exception handlers, response advices, filters, audit utilities,
+ * and datasource configuration (with the service that owns the database).
+ * </p>
  *
  * <p>
  * The package name must not start with any service package name ({@code io.mosip.admin},

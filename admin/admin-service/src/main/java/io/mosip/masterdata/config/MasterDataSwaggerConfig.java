@@ -9,7 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import io.mosip.admin.config.ApiPathPrefixConfig;
+import io.mosip.mergedadmin.web.ApiPathPrefixConfig;
 
 /**
  * Keeps masterdata's API documentation reachable, and separate from admin-service's, in

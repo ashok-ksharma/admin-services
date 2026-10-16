@@ -1,4 +1,4 @@
-package io.mosip.admin.config;
+package io.mosip.mergedadmin.web;
 
 import java.io.IOException;
 
@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 
+import io.mosip.admin.config.AdminMasterdataPathConfig;
 import io.mosip.admin.packetstatusupdater.exception.ApiExceptionHandler;
 import io.mosip.kernel.core.exception.ServiceError;
 import io.mosip.kernel.core.http.ResponseWrapper;

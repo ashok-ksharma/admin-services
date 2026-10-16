@@ -372,14 +372,6 @@
 			<artifactId>powermock-api-mockito2</artifactId>
 			<scope>test</scope>
 		</dependency>
-		<!-- Checks package boundaries between io.mosip.mergedadmin and the merged services
-			(PackageBoundaryTest). Test scope only; not packaged. -->
-		<dependency>
-			<groupId>com.tngtech.archunit</groupId>
-			<artifactId>archunit</artifactId>
-			<version>1.5.1</version>
-			<scope>test</scope>
-		</dependency>
 	</dependencies>
 	<distributionManagement>
 		<snapshotRepository>

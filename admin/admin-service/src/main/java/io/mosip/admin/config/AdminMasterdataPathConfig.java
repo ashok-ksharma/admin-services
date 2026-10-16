@@ -16,6 +16,7 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import io.mosip.admin.packetstatusupdater.util.AuditUtil;
 import io.mosip.admin.packetstatusupdater.util.EventEnum;
+import io.mosip.mergedadmin.web.ApiPathPrefixConfig;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -35,7 +36,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * <p>
  * Requests on {@value #ADMIN_MASTERDATA_PREFIX} are audited as
  * {@link EventEnum#MASTERDATA_PROXY_API_CALLED}. The second path is excluded from admin's
- * Swagger group (see {@link SwaggerConfig}) so masterdata's endpoints are documented once.
+ * Swagger group (see {@link io.mosip.mergedadmin.openapi.SwaggerConfig}) so masterdata's endpoints are documented once.
  * </p>
  */
 @Configuration

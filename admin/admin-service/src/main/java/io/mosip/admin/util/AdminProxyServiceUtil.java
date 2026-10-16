@@ -1,6 +1,6 @@
 package io.mosip.admin.util;
 
-import io.mosip.admin.config.ApiPathPrefixConfig;
+import io.mosip.mergedadmin.web.ApiPathPrefixConfig;
 import io.mosip.admin.packetstatusupdater.exception.AdminServiceException;
 import io.mosip.admin.packetstatusupdater.util.AuditUtil;
 import io.mosip.admin.packetstatusupdater.util.EventEnum;
