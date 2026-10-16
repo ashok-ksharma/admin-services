@@ -1,4 +1,4 @@
-package io.mosip.admin.httpfilter;
+package io.mosip.mergedadmin.httpfilter;
 
 import java.io.IOException;
 
@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.web.util.ContentCachingRequestWrapper;
 import org.springframework.web.util.ContentCachingResponseWrapper;
 
-import io.mosip.admin.config.LoggerConfiguration;
+import io.mosip.mergedadmin.config.LoggerConfiguration;
 import io.mosip.kernel.core.logger.spi.Logger;
 
 public class ReqResFilter implements Filter {

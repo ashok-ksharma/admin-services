@@ -9,6 +9,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import io.mosip.mergedadmin.web.ApiPathPrefixConfig;
+
 /**
  * The Class AuditConfigurer.
  *
@@ -43,6 +45,10 @@ public class AuditConfigurer implements WebMvcConfigurer {
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		logger.debug("add Intercpetors called");
-		registry.addInterceptor(auditInterceptor).addPathPatterns("/**/search");
+		// Before the merge masterdata ran with context path /v1/masterdata, so "/**/search" matched
+		// only masterdata's search URLs (admin's /v1/admin/masterdata proxy forwarded to them too).
+		// In the merged application it would match every service's, so it is limited to masterdata.
+		registry.addInterceptor(auditInterceptor).addPathPatterns(ApiPathPrefixConfig.MASTERDATA_PREFIX + "/**/search",
+				ApiPathPrefixConfig.ADMIN_PREFIX + "/masterdata/**/search");
 	}
 }

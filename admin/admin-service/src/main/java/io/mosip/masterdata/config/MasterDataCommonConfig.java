@@ -29,7 +29,8 @@ import io.mosip.masterdata.utils.DefaultSort;
  * the merged application:
  *
  *   logFilter, getReqResFilter, registerReqResFilter - admin-service's CommonConfig
- *       declares the same three. Its io.mosip.admin.httpfilter.ReqResFilter is
+ *       declared the same three (now io.mosip.mergedadmin.httpfilter.HttpFilterConfig).
+ *       Its ReqResFilter (now io.mosip.mergedadmin.httpfilter.ReqResFilter) is
  *       byte-identical to the masterdata copy that was deleted with them (both 58 lines;
  *       the only difference was which LoggerConfiguration they imported, and those two
  *       classes are identical too). Both registrations use order 2 with no URL pattern,

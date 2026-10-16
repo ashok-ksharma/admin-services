@@ -1,49 +1,21 @@
 package io.mosip.admin.config;
 
-import jakarta.servlet.Filter;
-
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.filter.CommonsRequestLoggingFilter;
-
-import io.mosip.admin.httpfilter.ReqResFilter;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * 
- * @author Srinivasan
+ * The request filters this class used to register (logFilter, registerReqResFilter,
+ * getReqResFilter) serve every merged service and are in
+ * {@link io.mosip.mergedadmin.httpfilter.HttpFilterConfig}.
  *
+ * @author Srinivasan
  */
 @Configuration
 public class CommonConfig {
-
-	@Bean
-	public CommonsRequestLoggingFilter logFilter() {
-		CommonsRequestLoggingFilter filter = new CommonsRequestLoggingFilter();
-		filter.setIncludeQueryString(true);
-		filter.setIncludePayload(true);
-		filter.setMaxPayloadLength(10000);
-		filter.setIncludeHeaders(false);
-		filter.setAfterMessagePrefix("REQUEST DATA : ");
-		return filter;
-	}
-
-	@Bean
-	public FilterRegistrationBean<Filter> registerReqResFilter() {
-		FilterRegistrationBean<Filter> filterRegistrationBean = new FilterRegistrationBean<>();
-		filterRegistrationBean.setFilter(getReqResFilter());
-		filterRegistrationBean.setOrder(2);
-		return filterRegistrationBean;
-	}
-
-	@Bean
-	public Filter getReqResFilter() {
-		return new ReqResFilter();
-	}
 
 	@Bean
 	public Properties packetProperties() {

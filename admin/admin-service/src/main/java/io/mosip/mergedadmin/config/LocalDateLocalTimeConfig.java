@@ -1,4 +1,4 @@
-package io.mosip.masterdata.config;
+package io.mosip.mergedadmin.config;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -22,6 +22,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 /**
  * Configuration class for LocalDate, LocalTime LocalDateTime.
+ * <p>
+ * Moved from masterdata: its @Primary ObjectMapper is the JSON mapper of the whole merged
+ * application (admin and masterdata today). A service merged later that needs different date
+ * formats or unknown-field handling must not rely on it; give that service its own mapper for
+ * its own controllers instead of changing this one.
+ * </p>
  * 
  * @author Sagar Mahapatra
  * @author Urvil Joshi

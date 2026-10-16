@@ -1,4 +1,4 @@
-package io.mosip.admin.config;
+package io.mosip.mergedadmin.config;
 
 import io.mosip.kernel.core.logger.spi.Logger;
 import io.mosip.kernel.logger.logback.appender.ConsoleAppender;

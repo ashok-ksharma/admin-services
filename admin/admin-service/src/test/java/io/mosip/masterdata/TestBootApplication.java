@@ -8,7 +8,8 @@ import org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfigurat
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Import;
 
-import io.mosip.admin.config.CommonConfig;
+import io.mosip.mergedadmin.config.LocalDateLocalTimeConfig;
+import io.mosip.mergedadmin.httpfilter.HttpFilterConfig;
 import io.mosip.masterdata.config.MasterDataSourceConfig;
 import io.mosip.mergedadmin.web.UnmappedPathExceptionHandler;
 import io.mosip.admin.packetstatusupdater.util.RestClient;
@@ -25,11 +26,12 @@ import io.mosip.masterdata.config.TestSecurityConfig;
 // Mirrors AdminBootApplication's single-datasource setup: MasterDataSourceConfig is the only
 // dataSource/entityManagerFactory, so kernel's HibernateDaoConfig is no longer imported and
 // datasource auto-configuration is excluded. RestClient lives in io.mosip.admin, outside this
-// scan, and is needed by PacketWorkflowActionServiceImpl. CommonConfig registers ReqResFilter
+// scan, and is needed by PacketWorkflowActionServiceImpl. HttpFilterConfig registers ReqResFilter
 // (ContentCachingRequestWrapper) for every request, as it does in the merged application;
 // masterdata no longer registers its own copy of that filter, and its exception handler
 // and response-body advice read the cached request body. UnmappedPathExceptionHandler answers
 // requests that no controller maps under /v1/masterdata, as it does in the application.
+// LocalDateLocalTimeConfig (in io.mosip.mergedadmin.config) provides the application's ObjectMapper.
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
 @ComponentScan(basePackages = {"io.mosip.masterdata.*","io.mosip.kernel.core.datamapper.*",
@@ -37,7 +39,7 @@ import io.mosip.masterdata.config.TestSecurityConfig;
 		,"io.mosip.kernel.websub.api.*","io.mosip.kernel.applicanttype.*","io.mosip.kernel.core.idgenerator.*"}
 )
 @Import(value = {TestConfig.class, TestSecurityConfig.class, MasterDataSourceConfig.class, RestClient.class,
-		CommonConfig.class, UnmappedPathExceptionHandler.class})
+		HttpFilterConfig.class, LocalDateLocalTimeConfig.class, UnmappedPathExceptionHandler.class})
 public class TestBootApplication {
 
 	/**

@@ -22,6 +22,7 @@ import io.mosip.kernel.core.http.ResponseFilter;
 import io.mosip.kernel.core.http.ResponseWrapper;
 import io.mosip.kernel.core.logger.spi.Logger;
 import io.mosip.kernel.core.util.EmptyCheckUtils;
+import io.mosip.mergedadmin.config.LoggerConfiguration;
 
 /*
  * Renamed from ResponseBodyAdviceConfig and scoped to masterdata's own controller
