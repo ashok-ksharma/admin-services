@@ -187,6 +187,15 @@ Homepage: https://github.com/powermock/powermock
 ================================================================================
 
 ================================================================================
+Package: ArchUnit
+Coordinates: com.tngtech.archunit:archunit
+Version: 1.5.1
+License: Apache License 2.0
+Copyright: © 2017-2025 TNG Technology Consulting GmbH
+Homepage: https://www.archunit.org/
+================================================================================
+
+================================================================================
 Package: Bouncy Castle
 Coordinates: org.bouncycastle:bcutil-jdk18on
 Version: 1.78.1
