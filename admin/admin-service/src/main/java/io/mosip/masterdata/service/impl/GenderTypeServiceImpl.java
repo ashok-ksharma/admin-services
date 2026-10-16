@@ -1,0 +1,373 @@
+package io.mosip.masterdata.service.impl;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import jakarta.transaction.Transactional;
+
+import io.mosip.masterdata.dto.response.FilterResult;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
+import org.springframework.stereotype.Service;
+
+import io.mosip.kernel.core.dataaccess.exception.DataAccessLayerException;
+import io.mosip.masterdata.constant.GenderTypeErrorCode;
+import io.mosip.masterdata.constant.MasterDataConstant;
+import io.mosip.masterdata.dto.GenderTypeDto;
+import io.mosip.masterdata.dto.MissingCodeDataDto;
+import io.mosip.masterdata.dto.getresponse.GenderTypeResponseDto;
+import io.mosip.masterdata.dto.getresponse.PageDto;
+import io.mosip.masterdata.dto.getresponse.StatusResponseDto;
+import io.mosip.masterdata.dto.getresponse.extn.GenderExtnDto;
+import io.mosip.masterdata.dto.postresponse.CodeResponseDto;
+import io.mosip.masterdata.dto.request.FilterDto;
+import io.mosip.masterdata.dto.request.FilterValueDto;
+import io.mosip.masterdata.dto.request.Pagination;
+import io.mosip.masterdata.dto.request.SearchDto;
+import io.mosip.masterdata.dto.request.SearchSort;
+import io.mosip.masterdata.dto.response.ColumnValue;
+import io.mosip.masterdata.dto.response.FilterResponseDto;
+import io.mosip.masterdata.dto.response.PageResponseDto;
+import io.mosip.masterdata.entity.Gender;
+import io.mosip.masterdata.entity.id.CodeAndLanguageCodeID;
+import io.mosip.masterdata.exception.DataNotFoundException;
+import io.mosip.masterdata.exception.MasterDataServiceException;
+import io.mosip.masterdata.exception.RequestException;
+import io.mosip.masterdata.repository.GenderTypeRepository;
+import io.mosip.masterdata.service.GenderTypeService;
+import io.mosip.masterdata.utils.AuditUtil;
+import io.mosip.masterdata.utils.ExceptionUtils;
+import io.mosip.masterdata.utils.MapperUtils;
+import io.mosip.masterdata.utils.MasterDataFilterHelper;
+import io.mosip.masterdata.utils.MasterdataCreationUtil;
+import io.mosip.masterdata.utils.MasterdataSearchHelper;
+import io.mosip.masterdata.utils.MetaDataUtils;
+import io.mosip.masterdata.utils.PageUtils;
+import io.mosip.masterdata.validator.FilterColumnValidator;
+import io.mosip.masterdata.validator.FilterTypeValidator;
+
+/**
+ * This class contains service methods to fetch gender type data from DB
+ * 
+ * @author Sidhant Agarwal
+ * @author Urvil Joshi
+ * @since 1.0.0
+ *
+ */
+@Service
+public class GenderTypeServiceImpl implements GenderTypeService {
+
+	@Autowired
+	FilterTypeValidator filterTypeValidator;
+
+	@Autowired
+	FilterColumnValidator filterColumnValidator;
+
+	@Autowired
+	MasterdataSearchHelper masterDataSearchHelper;
+
+	@Autowired
+	MasterDataFilterHelper masterDataFilterHelper;
+
+	@Autowired
+	private PageUtils pageUtils;
+
+	@Autowired
+	GenderTypeRepository genderTypeRepository;
+
+	@Autowired
+	private AuditUtil auditUtil;
+
+	@Autowired
+	private MasterdataCreationUtil masterdataCreationUtil;
+	
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see io.mosip.masterdata.service.GenderTypeService#getAllGenderTypes()
+	 */
+
+	@Cacheable(value = "gender-type", key = "'gendertype'")
+	@Override
+	public GenderTypeResponseDto getAllGenderTypes() {
+		GenderTypeResponseDto genderResponseDto = null;
+		List<GenderTypeDto> genderDto = null;
+		List<Gender> genderType = null;
+
+		try {
+			genderType = genderTypeRepository.findAllByIsActiveAndIsDeleted();
+		} catch (DataAccessLayerException | DataAccessException e) {
+			throw new MasterDataServiceException(GenderTypeErrorCode.GENDER_TYPE_FETCH_EXCEPTION.getErrorCode(),
+					ExceptionUtils.parseException(e));
+		}
+		if (!(genderType.isEmpty())) {
+			genderDto = MapperUtils.mapAll(genderType, GenderTypeDto.class);
+		} else {
+			throw new DataNotFoundException(GenderTypeErrorCode.GENDER_TYPE_NOT_FOUND.getErrorCode(),
+					GenderTypeErrorCode.GENDER_TYPE_NOT_FOUND.getErrorMessage());
+		}
+		genderResponseDto = new GenderTypeResponseDto();
+		genderResponseDto.setGenderType(genderDto);
+
+		return genderResponseDto;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * io.mosip.masterdata.service.GenderTypeService#getGenderTypeByLangCode(
+	 * java.lang.String)
+	 */
+	@Cacheable(value = "gender-type", key = "'gendertype'.concat('-').concat(#langCode)", condition = "#langCode != null")
+	@Override
+	public GenderTypeResponseDto getGenderTypeByLangCode(String langCode) {
+		GenderTypeResponseDto genderResponseDto = null;
+		List<GenderTypeDto> genderListDto = null;
+		List<Gender> gender = null;
+
+		try {
+			gender = genderTypeRepository.findGenderByLangCodeAndIsDeletedFalseOrIsDeletedIsNull(langCode);
+		} catch (DataAccessLayerException | DataAccessException e) {
+			throw new MasterDataServiceException(GenderTypeErrorCode.GENDER_TYPE_FETCH_EXCEPTION.getErrorCode(),
+					ExceptionUtils.parseException(e));
+		}
+		if (gender != null && !gender.isEmpty()) {
+			genderListDto = MapperUtils.mapAll(gender, GenderTypeDto.class);
+		} else {
+			throw new DataNotFoundException(GenderTypeErrorCode.GENDER_TYPE_NOT_FOUND.getErrorCode(),
+					GenderTypeErrorCode.GENDER_TYPE_NOT_FOUND.getErrorMessage());
+		}
+
+		genderResponseDto = new GenderTypeResponseDto();
+		genderResponseDto.setGenderType(genderListDto);
+
+		return genderResponseDto;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * io.mosip.masterdata.service.GenderTypeService#createGenderType(io.
+	 * mosip.kernel.masterdata.dto.RequestDto)
+	 */
+	@CacheEvict(value = "gender-type", allEntries = true)
+	@Override
+	public CodeAndLanguageCodeID saveGenderType(GenderTypeDto genderRequestDto) {
+
+		Gender gender;
+		try {
+			genderRequestDto = masterdataCreationUtil.createMasterData(Gender.class, genderRequestDto);
+			Gender entity = MetaDataUtils.setCreateMetaData(genderRequestDto, Gender.class);
+			gender = genderTypeRepository.create(entity);
+		} catch (DataAccessLayerException | DataAccessException | IllegalArgumentException | IllegalAccessException
+				| NoSuchFieldException | SecurityException e) {
+			auditUtil.auditRequest(
+					String.format(MasterDataConstant.FAILURE_CREATE, Gender.class.getSimpleName()),
+					MasterDataConstant.AUDIT_SYSTEM,
+					String.format(MasterDataConstant.FAILURE_DESC,
+							GenderTypeErrorCode.GENDER_TYPE_INSERT_EXCEPTION.getErrorCode(),
+							GenderTypeErrorCode.GENDER_TYPE_INSERT_EXCEPTION.getErrorMessage()
+									+ ExceptionUtils.parseException(e)),
+					"ADM-564");
+			throw new MasterDataServiceException(GenderTypeErrorCode.GENDER_TYPE_INSERT_EXCEPTION.getErrorCode(),
+					ExceptionUtils.parseException(e));
+		}
+		CodeAndLanguageCodeID codeLangCodeId = new CodeAndLanguageCodeID();
+		MapperUtils.map(gender, codeLangCodeId);
+		auditUtil.auditRequest(String.format(MasterDataConstant.SUCCESSFUL_CREATE, Gender.class.getSimpleName()),
+				MasterDataConstant.AUDIT_SYSTEM, String.format(MasterDataConstant.SUCCESSFUL_CREATE_DESC,
+						Gender.class.getSimpleName(), codeLangCodeId.getCode()),
+				"ADM-565");
+
+		return codeLangCodeId;
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * io.mosip.masterdata.service.GenderTypeService#updateGenderType(io.
+	 * mosip.kernel.masterdata.dto.RequestDto)
+	 */
+	@CacheEvict(value = "gender-type", allEntries = true)
+	@Transactional
+	@Override
+	public CodeAndLanguageCodeID updateGenderType(GenderTypeDto genderTypeDto) {
+		CodeAndLanguageCodeID genderTypeId = new CodeAndLanguageCodeID();
+		MapperUtils.mapFieldValues(genderTypeDto, genderTypeId);
+		try {
+			genderTypeDto = masterdataCreationUtil.updateMasterData(Gender.class,
+					genderTypeDto);
+			int updatedRows = genderTypeRepository.updateGenderType(genderTypeDto.getCode(),
+					genderTypeDto.getLangCode(), genderTypeDto.getGenderName(), genderTypeDto.getIsActive(),
+					MetaDataUtils.getCurrentDateTime(), MetaDataUtils.getContextUser());
+			if (updatedRows < 1) {
+				throw new RequestException(GenderTypeErrorCode.GENDER_TYPE_NOT_FOUND.getErrorCode(),
+						GenderTypeErrorCode.GENDER_TYPE_NOT_FOUND.getErrorMessage());
+			}
+			if(!genderTypeDto.getIsActive()) {
+				masterdataCreationUtil.updateMasterDataDeactivate(Gender.class, genderTypeDto.getCode());
+			}
+		} catch (DataAccessLayerException | DataAccessException | IllegalArgumentException | IllegalAccessException
+				| NoSuchFieldException | SecurityException e) {
+			auditUtil.auditRequest(
+					String.format(MasterDataConstant.FAILURE_UPDATE, Gender.class.getSimpleName()),
+					MasterDataConstant.AUDIT_SYSTEM,
+					String.format(MasterDataConstant.FAILURE_DESC,
+							GenderTypeErrorCode.GENDER_TYPE_UPDATE_EXCEPTION.getErrorCode(),
+							GenderTypeErrorCode.GENDER_TYPE_UPDATE_EXCEPTION.getErrorMessage()
+									+ ExceptionUtils.parseException(e)),
+					"ADM-566");
+			throw new MasterDataServiceException(GenderTypeErrorCode.GENDER_TYPE_UPDATE_EXCEPTION.getErrorCode(),
+					GenderTypeErrorCode.GENDER_TYPE_UPDATE_EXCEPTION.getErrorMessage()
+							+ ExceptionUtils.parseException(e));
+		}
+		auditUtil.auditRequest(String.format(MasterDataConstant.SUCCESSFUL_UPDATE, Gender.class.getSimpleName()),
+				MasterDataConstant.AUDIT_SYSTEM, String.format(MasterDataConstant.SUCCESSFUL_UPDATE_DESC,
+						Gender.class.getSimpleName(), genderTypeId.getCode()),
+				"ADM-567");
+
+		return genderTypeId;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * io.mosip.masterdata.service.GenderTypeService#deleteGenderType(java.
+	 * lang.String, java.lang.String)
+	 */
+	@CacheEvict(value = "gender-type", allEntries = true)
+	@Transactional
+	@Override
+	public CodeResponseDto deleteGenderType(String code) {
+		try {
+			int updatedRows = genderTypeRepository.deleteGenderType(code, MetaDataUtils.getCurrentDateTime(),
+					MetaDataUtils.getContextUser());
+			if (updatedRows < 1) {
+				throw new RequestException(GenderTypeErrorCode.GENDER_TYPE_NOT_FOUND.getErrorCode(),
+						GenderTypeErrorCode.GENDER_TYPE_NOT_FOUND.getErrorMessage());
+			}
+		} catch (DataAccessLayerException | DataAccessException e) {
+			throw new MasterDataServiceException(GenderTypeErrorCode.GENDER_TYPE_DELETE_EXCEPTION.getErrorCode(),
+					GenderTypeErrorCode.GENDER_TYPE_DELETE_EXCEPTION.getErrorMessage()
+							+ ExceptionUtils.parseException(e));
+		}
+		CodeResponseDto codeResponseDto = new CodeResponseDto();
+		codeResponseDto.setCode(code);
+		return codeResponseDto;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * io.mosip.masterdata.service.GenderTypeService#validateGender(java.lang
+	 * .String)
+	 */
+
+	@Cacheable(value = "gender-type", key = "'gendertype'.concat('-').concat(#genderName)", condition = "#genderName != null")
+	@Override
+	public StatusResponseDto validateGender(String genderName) {
+		StatusResponseDto statusResponseDto = null;
+		boolean isPresent = false;
+		try {
+			statusResponseDto = new StatusResponseDto();
+			isPresent = genderTypeRepository.isGenderNamePresent(genderName);
+		} catch (DataAccessLayerException | DataAccessException e) {
+			throw new MasterDataServiceException(GenderTypeErrorCode.GENDER_TYPE_FETCH_EXCEPTION.getErrorCode(),
+					GenderTypeErrorCode.GENDER_TYPE_FETCH_EXCEPTION.getErrorMessage());
+		}
+		if (isPresent) {
+			statusResponseDto.setStatus(MasterDataConstant.VALID);
+		} else {
+			statusResponseDto.setStatus(MasterDataConstant.INVALID);
+		}
+
+		return statusResponseDto;
+
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see io.mosip.masterdata.service.GenderTypeService#getGenderTypes(int,
+	 * int, java.lang.String, java.lang.String)
+	 */
+	@Override
+	public PageDto<GenderExtnDto> getGenderTypes(int pageNumber, int pageSize, String sortBy, String orderBy) {
+		List<GenderExtnDto> genderTypes = null;
+		PageDto<GenderExtnDto> genderTypesPages = null;
+		try {
+			Page<Gender> pageData = genderTypeRepository
+					.findAll(PageRequest.of(pageNumber, pageSize, Sort.by(Direction.fromString(orderBy), sortBy)));
+			if (pageData != null && pageData.getContent() != null && !pageData.getContent().isEmpty()) {
+				genderTypes = MapperUtils.mapAll(pageData.getContent(), GenderExtnDto.class);
+				genderTypesPages = new PageDto<>(pageData.getNumber(), pageData.getTotalPages(),
+						pageData.getTotalElements(), genderTypes);
+			} else {
+				throw new DataNotFoundException(GenderTypeErrorCode.GENDER_TYPE_NOT_FOUND.getErrorCode(),
+						GenderTypeErrorCode.GENDER_TYPE_NOT_FOUND.getErrorMessage());
+			}
+		} catch (DataAccessLayerException | DataAccessException e) {
+			throw new MasterDataServiceException(GenderTypeErrorCode.GENDER_TYPE_FETCH_EXCEPTION.getErrorCode(),
+					GenderTypeErrorCode.GENDER_TYPE_FETCH_EXCEPTION.getErrorMessage());
+		}
+		return genderTypesPages;
+	}
+
+	@Override
+	public PageResponseDto<GenderExtnDto> searchGenderTypes(SearchDto request) {
+		PageResponseDto<GenderExtnDto> pageDto = new PageResponseDto<>();
+		List<GenderExtnDto> genderTypeExtns = null;
+
+		if (filterTypeValidator.validate(GenderExtnDto.class, request.getFilters())) {
+			Pagination pagination = request.getPagination();
+			List<SearchSort> sort = request.getSort();
+			pageUtils.validateSortField(GenderExtnDto.class, Gender.class, sort);
+			request.setPagination(new Pagination(0, Integer.MAX_VALUE));
+			request.setSort(Collections.emptyList());
+			Page<Gender> page = masterDataSearchHelper.searchMasterdata(Gender.class, request, null);
+
+			if (page.getContent() != null && !page.getContent().isEmpty()) {
+				genderTypeExtns = MapperUtils.mapAll(page.getContent(), GenderExtnDto.class);
+				pageDto = pageUtils.sortPage(genderTypeExtns, sort, pagination);
+			}
+		}
+		return pageDto;
+	}
+
+	@Override
+	public FilterResponseDto genderFilterValues(FilterValueDto request) {
+		FilterResponseDto filterResponseDto = new FilterResponseDto();
+		List<ColumnValue> columnValueList = new ArrayList<>();
+		ColumnValue columnValue;
+		if (filterColumnValidator.validate(FilterDto.class, request.getFilters(), Gender.class)) {
+			for (FilterDto filterDto : request.getFilters()) {
+				FilterResult<String> filterResult = masterDataFilterHelper.filterValues(Gender.class, filterDto, request);
+				for (String filterValue : filterResult.getFilterData()) {
+					if (filterValue != null) {
+						columnValue = new ColumnValue();
+						columnValue.setFieldID(filterDto.getColumnName());
+						columnValue.setFieldValue(filterValue);
+						columnValueList.add(columnValue);
+					}
+				}
+				filterResponseDto.setTotalCount(filterResult.getTotalCount());
+			}
+			filterResponseDto.setFilters(columnValueList);
+		}
+		return filterResponseDto;
+	}
+
+}

@@ -12,11 +12,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import io.mosip.kernel.masterdata.dto.MachineRegistrationCenterDto;
-import io.mosip.kernel.masterdata.dto.PageDto;
-import io.mosip.kernel.masterdata.exception.MasterDataServiceException;
-import io.mosip.kernel.masterdata.exception.RequestException;
-import io.mosip.kernel.masterdata.service.MachineService;
+import io.mosip.masterdata.dto.MachineRegistrationCenterDto;
+import io.mosip.masterdata.dto.PageDto;
+import io.mosip.masterdata.exception.MasterDataServiceException;
+import io.mosip.masterdata.exception.RequestException;
+import io.mosip.masterdata.service.MachineService;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MachineAdapterTest {

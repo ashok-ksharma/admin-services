@@ -2,7 +2,8 @@ package io.mosip.admin;
 
 import io.mosip.commons.packet.impl.OnlinePacketCryptoServiceImpl;
 import io.mosip.commons.packet.keeper.PacketKeeper;
-import io.mosip.kernel.masterdata.service.MachineService;
+import io.mosip.masterdata.config.MasterDataSourceConfig;
+import io.mosip.masterdata.service.MachineService;
 
 import javax.validation.Validator;
 
@@ -24,6 +25,8 @@ import org.springframework.context.annotation.*;
 		 "io.mosip.kernel.idvalidator.rid.*"},
 		excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ,
 		pattern = "io.mosip.kernel.lkeymanager.repository.*"))
+// MasterDataSourceConfig lives in masterdata's package, outside the scan above.
+@Import(MasterDataSourceConfig.class)
 public class TestBootApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TestBootApplication.class, args);

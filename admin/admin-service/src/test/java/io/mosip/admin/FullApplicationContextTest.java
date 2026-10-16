@@ -68,7 +68,7 @@ import io.mosip.commons.packet.impl.OnlinePacketCryptoServiceImpl;
 import io.mosip.commons.packet.keeper.PacketKeeper;
 import io.mosip.kernel.authcodeflowproxy.api.config.AuthCodeProxyConfig;
 import io.mosip.kernel.datamapper.orika.impl.DataMapperImpl;
-import io.mosip.kernel.masterdata.service.MachineService;
+import io.mosip.masterdata.service.MachineService;
 import jakarta.persistence.EntityManagerFactory;
 
 /**
@@ -141,13 +141,16 @@ public class FullApplicationContextTest {
 			DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
 	@ComponentScan(value = { "io.mosip.admin.*", "io.mosip.commons.*", "io.mosip.kernel.idvalidator.rid.*",
 			"io.mosip.kernel.biometrics.*", "io.mosip.kernel.authcodeflowproxy.*",
-			"io.mosip.kernel.masterdata.*", "io.mosip.kernel.core.datamapper.*", "io.mosip.kernel.core.websub.*",
+			"io.mosip.masterdata.*", "io.mosip.kernel.core.datamapper.*", "io.mosip.kernel.core.websub.*",
 			"io.mosip.kernel.idgenerator.*", "io.mosip.kernel.websub.api.*", "io.mosip.kernel.applicanttype.*",
 			"io.mosip.kernel.core.idgenerator.*", "io.mosip.kernel.core.logger.config" },
 			excludeFilters = {
 					@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = { DataMapperImpl.class }),
 					@ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = "io.mosip.kernel.lkeymanager.repository.*"),
-					@ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = "io.mosip.kernel.masterdata.test..*"),
+					@ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = "io.mosip.masterdata.TestBootApplication"),
+					@ComponentScan.Filter(type = FilterType.ASPECTJ, pattern = "io.mosip.masterdata.config.TestConfig"),
+					@ComponentScan.Filter(type = FilterType.ASPECTJ,
+							pattern = "io.mosip.masterdata.config.TestSecurityConfig"),
 					@ComponentScan.Filter(type = FilterType.ASPECTJ,
 							pattern = "io.mosip.admin.packetstatusupdater.config.TestConfig"),
 					@ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, classes = { AuthCodeProxyConfig.class }) })
@@ -190,14 +193,14 @@ public class FullApplicationContextTest {
 		}
 	}
 
-	private static final String MASTERDATA_PACKAGE = "io.mosip.kernel.masterdata.";
+	private static final String MASTERDATA_PACKAGE = "io.mosip.masterdata.";
 
 	/** Both services audit through the audit manager; keep those calls inside the test. */
 	@MockBean
 	private io.mosip.admin.packetstatusupdater.util.AuditUtil adminAuditUtil;
 
 	@MockBean
-	private io.mosip.kernel.masterdata.utils.AuditUtil masterdataAuditUtil;
+	private io.mosip.masterdata.utils.AuditUtil masterdataAuditUtil;
 
 	@Autowired
 	private ApplicationContext context;

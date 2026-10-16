@@ -12,7 +12,7 @@ import io.mosip.kernel.core.util.CryptoUtil;
 import io.mosip.kernel.core.util.DateUtils2;
 import io.mosip.kernel.core.util.FileUtils;
 import io.mosip.kernel.core.util.HMACUtils2;
-import io.mosip.kernel.masterdata.dto.MachineRegistrationCenterDto;
+import io.mosip.masterdata.dto.MachineRegistrationCenterDto;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;

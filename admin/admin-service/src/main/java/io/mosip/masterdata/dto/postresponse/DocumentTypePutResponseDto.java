@@ -1,0 +1,40 @@
+package io.mosip.masterdata.dto.postresponse;
+
+import java.time.LocalDateTime;
+
+import jakarta.persistence.Column;
+
+import lombok.Data;
+
+/**
+ * 
+ * @author Ramadurai Pandian
+ * @since 1.0.0
+ */
+
+@Data
+public class DocumentTypePutResponseDto {
+
+	private String code;
+
+	private String langCode;
+
+	private String name;
+
+	private String description;
+
+	private Boolean isActive;
+
+	private String createdBy;
+
+	private LocalDateTime createdDateTime;
+
+	private String updatedBy;
+
+	private LocalDateTime updatedDateTime;
+
+	private Boolean isDeleted;
+
+	private LocalDateTime deletedDateTime;
+
+}

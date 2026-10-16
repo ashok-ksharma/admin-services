@@ -41,7 +41,7 @@ public class ApiPathPrefixConfig implements WebMvcConfigurer {
 
 	private static final String[] ADMIN_BASE_PACKAGES = { "io.mosip.admin", "io.mosip.kernel.authcodeflowproxy" };
 
-	private static final String MASTERDATA_BASE_PACKAGE = "io.mosip.kernel.masterdata";
+	private static final String MASTERDATA_BASE_PACKAGE = "io.mosip.masterdata";
 
 	@Override
 	public void configurePathMatch(PathMatchConfigurer configurer) {

@@ -1,0 +1,16 @@
+package io.mosip.masterdata.dto.postresponse;
+
+import io.mosip.masterdata.dto.RegistrationCenterMachineDeviceHistoryDto;
+import lombok.Data;
+
+/**
+ * Response Dto class
+ * 
+ * @author Srinivasan
+ *
+ */
+@Data
+public class RegCenterMachineDeviceHistoryResponseDto {
+
+	private RegistrationCenterMachineDeviceHistoryDto registrationCenterMachineDeviceHistoryDto;
+}

@@ -12,7 +12,7 @@ public enum ApiName {
 	PACKET_MANAGER_BIOMETRIC,PACKET_MANAGER_SEARCHFIELDS,
 
 	/*
-	 * Folded in from io.mosip.kernel.masterdata.constant.ApiName during the
+	 * Folded in from io.mosip.masterdata.constant.ApiName during the
 	 * admin-services merge, which was deleted along with masterdata's duplicate
 	 * RestClient. Every RestClient method takes ApiName in its signature, so one shared
 	 * client needs one shared enum. The two enums had no constant in common, and each

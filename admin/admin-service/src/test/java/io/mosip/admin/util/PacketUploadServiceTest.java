@@ -12,7 +12,7 @@ import io.mosip.commons.packet.exception.PacketKeeperException;
 import io.mosip.commons.packet.impl.OnlinePacketCryptoServiceImpl;
 import io.mosip.commons.packet.keeper.PacketKeeper;
 import io.mosip.kernel.core.http.ResponseWrapper;
-import io.mosip.kernel.masterdata.dto.MachineRegistrationCenterDto;
+import io.mosip.masterdata.dto.MachineRegistrationCenterDto;
 import io.mosip.admin.adapter.masterdata.MachineAdapter;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.json.JSONException;

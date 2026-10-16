@@ -20,7 +20,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import io.mosip.admin.packetstatusupdater.exception.ApiExceptionHandler;
 import io.mosip.kernel.core.exception.ServiceError;
 import io.mosip.kernel.core.http.ResponseWrapper;
-import io.mosip.kernel.masterdata.exception.MasterDataApiExceptionHandler;
+import io.mosip.masterdata.exception.MasterDataApiExceptionHandler;
 
 /**
  * Routing of {@link UnmappedPathExceptionHandler}: each served prefix goes to that

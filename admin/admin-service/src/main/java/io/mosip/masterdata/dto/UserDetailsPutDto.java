@@ -1,0 +1,39 @@
+package io.mosip.masterdata.dto;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Null;
+import jakarta.validation.constraints.Size;
+
+import io.mosip.masterdata.validator.StringFormatter;
+import lombok.Data;
+
+@Data
+public class UserDetailsPutDto {
+
+	@NotNull
+	@StringFormatter(min = 1, max = 36)
+	private String id;
+
+
+	@Null
+	@StringFormatter(min = 0, max = 64)
+	private String name;
+
+
+	@Null
+	@StringFormatter(min = 0, max = 16)
+	private String statusCode;
+
+	@NotNull
+	@StringFormatter(min = 1, max = 10)
+	private String regCenterId;
+
+	@Deprecated
+	private Boolean isActive;
+
+	private String langCode;
+	
+	private String regCenterName;
+	private String zoneCode;
+	private String zoneName;
+}

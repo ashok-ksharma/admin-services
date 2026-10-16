@@ -6,7 +6,7 @@ import org.hibernate.annotations.GenericGenerator;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
-import io.mosip.kernel.masterdata.entity.BaseEntity;
+import io.mosip.masterdata.entity.BaseEntity;
 
 @Data
 @Entity

@@ -43,7 +43,7 @@ public class AdminMasterdataPathConfig implements WebMvcConfigurer {
 
 	public static final String ADMIN_MASTERDATA_PREFIX = ApiPathPrefixConfig.ADMIN_PREFIX + "/masterdata";
 
-	private static final String MASTERDATA_PACKAGE = "io.mosip.kernel.masterdata.";
+	private static final String MASTERDATA_PACKAGE = "io.mosip.masterdata.";
 
 	@Autowired
 	private AuditUtil auditUtil;

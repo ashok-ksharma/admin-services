@@ -5,8 +5,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import io.mosip.kernel.masterdata.dto.MachineRegistrationCenterDto;
-import io.mosip.kernel.masterdata.service.MachineService;
+import io.mosip.masterdata.dto.MachineRegistrationCenterDto;
+import io.mosip.masterdata.service.MachineService;
 
 /**
  * Adapter for masterdata's {@link MachineService}.

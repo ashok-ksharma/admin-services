@@ -1,0 +1,102 @@
+package io.mosip.masterdata.service;
+
+import io.mosip.masterdata.dto.MachineSpecificationDto;
+import io.mosip.masterdata.dto.MachineSpecificationPutDto;
+import io.mosip.masterdata.dto.SearchDtoWithoutLangCode;
+import io.mosip.masterdata.dto.getresponse.PageDto;
+import io.mosip.masterdata.dto.getresponse.StatusResponseDto;
+import io.mosip.masterdata.dto.getresponse.extn.MachineSpecificationExtnDto;
+import io.mosip.masterdata.dto.postresponse.IdResponseDto;
+import io.mosip.masterdata.dto.request.FilterValueDto;
+import io.mosip.masterdata.dto.response.FilterResponseCodeDto;
+import io.mosip.masterdata.dto.response.FilterResponseDto;
+import io.mosip.masterdata.dto.response.PageResponseDto;
+import io.mosip.masterdata.entity.id.IdAndLanguageCodeID;
+import io.mosip.masterdata.exception.MasterDataServiceException;
+import io.mosip.masterdata.exception.RequestException;
+
+/**
+ * This interface provides methods to do CRUD operations on MachineSpecification
+ * 
+ * @author Megha Tanga
+ * @author Ayush Saxena
+ * @since 1.0.0
+ *
+ */
+public interface MachineSpecificationService {
+
+	/**
+	 * Abstract method to save Machine Specification Details to the Database
+	 * 
+	 * @param machineSpecification machineSpecification DTO
+	 * 
+	 * @return IdResponseDto Machine Specification ID which is successfully inserted
+	 *         {@link IdResponseDto}
+	 * @throws MasterDataServiceException if any error occurred while saving Machine
+	 *                                    Specification
+	 */
+	public IdAndLanguageCodeID createMachineSpecification(MachineSpecificationDto machineSpecification);
+
+	/**
+	 * Abstract method to update Machine Specification Details to the Database
+	 * 
+	 * @param machineSpecification machineSpecification DTO
+	 * 
+	 * @return IdResponseDto Machine Specification ID which is successfully updated
+	 *         {@link IdResponseDto}
+	 * 
+	 * @throws RequestException           if Machine Specification not Found
+	 * @throws MasterDataServiceException if any error occurred while updating
+	 *                                    Machine Specification
+	 *
+	 */
+	public IdAndLanguageCodeID updateMachineSpecification(MachineSpecificationPutDto machineSpecification);
+
+	/**
+	 * Abstract method to delete Machine Specification Details to the Database
+	 * 
+	 * @param id machineSpecification id
+	 * 
+	 * @return IdResponseDto Machine Specification ID which is successfully deleted
+	 *         {@link IdResponseDto}
+	 * 
+	 * @throws RequestException           if Machine Specification not Found
+	 * @throws MasterDataServiceException if any error occurred while deleting
+	 *                                    Machine Specification
+	 * 
+	 */
+	public IdResponseDto deleteMachineSpecification(String id);
+
+	/**
+	 * Method to get all machine specifications.
+	 * 
+	 * @param pageNumber the page number
+	 * @param pageSize   the size of each page
+	 * @param sortBy     the attributes by which it should be ordered
+	 * @param orderBy    the order to be used
+	 * 
+	 * @return the response i.e. pages containing the machine specifications
+	 */
+	public PageDto<MachineSpecificationExtnDto> getAllMachineSpecfication(int pageNumber, int pageSize, String sortBy,
+			String orderBy);
+
+	/**
+	 * Method to search machine specification based on filters provided.
+	 * 
+	 * @param searchRequestDto the search DTO.
+	 * @return the {@link PageResponseDto}.
+	 */
+	public PageResponseDto<MachineSpecificationExtnDto> searchMachineSpecification(
+			SearchDtoWithoutLangCode searchRequestDto);
+
+	/**
+	 * Method to filter machine specification based on column and type provided.
+	 * 
+	 * @param filterValueDto the filter DTO.
+	 * @return the {@link FilterResponseDto}.
+	 */
+	public FilterResponseCodeDto machineSpecificationFilterValues(FilterValueDto filterValueDto);
+
+	public StatusResponseDto updateMachineSpecificationStatus(String id, boolean isActive);
+
+}

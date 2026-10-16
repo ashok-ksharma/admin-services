@@ -9,8 +9,8 @@ import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
-import io.mosip.kernel.masterdata.entity.id.RegistrationCenterMachineDeviceHistoryID;
-import io.mosip.kernel.masterdata.entity.BaseEntity;
+import io.mosip.masterdata.entity.id.RegistrationCenterMachineDeviceHistoryID;
+import io.mosip.masterdata.entity.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;

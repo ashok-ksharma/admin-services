@@ -6,7 +6,7 @@ import java.util.Objects;
 
 import jakarta.persistence.EmbeddedId;
 
-import io.mosip.kernel.masterdata.entity.BaseEntity;
+import io.mosip.masterdata.entity.BaseEntity;
 import io.mosip.kernel.core.dataaccess.exception.DataAccessLayerException;
 import io.mosip.kernel.core.util.EmptyCheckUtils;
 

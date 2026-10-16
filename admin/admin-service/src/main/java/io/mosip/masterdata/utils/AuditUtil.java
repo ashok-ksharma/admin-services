@@ -1,0 +1,271 @@
+package io.mosip.masterdata.utils;
+
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Predicate;
+
+import jakarta.annotation.PostConstruct;
+
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.env.Environment;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.mosip.kernel.core.authmanager.exception.AuthNException;
+import io.mosip.kernel.core.authmanager.exception.AuthZException;
+import io.mosip.kernel.core.exception.ExceptionUtils;
+import io.mosip.kernel.core.exception.ServiceError;
+import io.mosip.kernel.core.http.RequestWrapper;
+import io.mosip.kernel.core.http.ResponseWrapper;
+import io.mosip.kernel.core.util.DateUtils2;
+import io.mosip.masterdata.constant.AuditErrorCode;
+import io.mosip.masterdata.dto.AuditResponseDto;
+import io.mosip.masterdata.dto.request.AuditRequestDto;
+import io.mosip.masterdata.exception.MasterDataServiceException;
+import io.mosip.masterdata.exception.ValidationException;
+
+/**
+ * AuditUtil.
+ */
+
+/*
+ * Explicitly named during the admin-services merge. This class and
+ * io.mosip.admin.packetstatusupdater.util.AuditUtil would both default to the bean name
+ * "auditUtil" and the application would fail to start with
+ * ConflictingBeanDefinitionException. Every injection of either is by type, and the two
+ * types are FQN-distinct, so the name alone needed disambiguating.
+ *
+ * The two classes were deliberately NOT merged into one, although roughly 85% of their
+ * bodies are identical - same audit URL property, same selfTokenRestTemplate, same
+ * 17-field request payload, and getServerIp/getServerName/getHostDetails/callAuditManager
+ * are the same code. They stay separate because their error contracts differ:
+ *
+ *   - AuditErrorCode.AUDIT_PARSE_EXCEPTION is KER-MSD-197 here and KER-MSD-196 in admin;
+ *     AUDIT_EXCEPTION is KER-MSD-199 here and KER-MSD-198 in admin.
+ *   - Each throws its own MasterDataServiceException / ValidationException, and those are
+ *     routed by package-scoped @RestControllerAdvice, so the type determines which
+ *     handler and which response shape a caller sees.
+ *   - callAuditManager is the method that throws, and it is shared, so a single class
+ *     would have to pick one error-code set - changing the code returned on audit failure
+ *     for whichever service lost.
+ *   - Both log the audit instead of calling the audit manager when the profile is local or
+ *     test. They differ in which profiles they check: admin's AuditUtil checks the active
+ *     profiles, or the default profiles if none is active; this class checks only the
+ *     active profiles.
+ *
+ * Parameterising all of that per entry point would leave one class carrying two error-code
+ * sets, two exception types and two profile-lookup rules, which is not a simplification.
+ */
+@Component("masterdataAuditUtil")
+public class AuditUtil {
+
+	/** The Constant APPLICATION_ID. */
+	private static final String APPLICATION_ID = "10009";
+
+	/** The Constant APPLICATION_NAME. */
+	private static final String APPLICATION_NAME = "Admin_Portal";
+
+	/** The Constant UNKNOWN_HOST. */
+	private static final String UNKNOWN_HOST = "Unknown Host";
+
+	private String hostIpAddress = null;
+
+	private String hostName = null;
+
+	@Value("${mosip.kernel.masterdata.audit-url}")
+	private String auditUrl;
+
+	@Autowired
+	@Qualifier("selfTokenRestTemplate")
+	private RestTemplate restTemplate;
+
+	@Autowired
+	private ObjectMapper objectMapper;
+	
+	@Autowired
+	private Environment env;
+	
+	private static final org.slf4j.Logger LOGGER = LoggerFactory.getLogger(AuditUtil.class);
+
+	public void auditRequest(String eventName, String eventType, String description, String eventId) {
+
+		setAuditRequestDto(eventName, eventType, description, eventId);
+	}
+
+	/**
+	 * Sets the audit request dto.
+	 *
+	 * @param eventName
+	 * @param eventType
+	 * @param description
+	 * @param eventId
+	 */
+	private void setAuditRequestDto(String eventName, String eventType, String description, String eventId) {
+		AuditRequestDto auditRequestDto = new AuditRequestDto();
+		auditRequestDto.setEventId(eventId);
+		auditRequestDto.setId("NO_ID");
+		auditRequestDto.setIdType("NO_ID_TYPE");
+		auditRequestDto.setEventName(eventName);
+		auditRequestDto.setEventType(eventType);
+		auditRequestDto.setModuleId("KER-MSD");
+		auditRequestDto.setModuleName("Kernel masterdata");
+		auditRequestDto.setDescription(description);
+		auditRequestDto.setActionTimeStamp(DateUtils2.getUTCCurrentDateTime());
+		auditRequestDto.setHostIp(hostIpAddress);
+		auditRequestDto.setHostName(hostName);
+		auditRequestDto.setApplicationId(APPLICATION_ID);
+		auditRequestDto.setApplicationName(APPLICATION_NAME);
+		auditRequestDto.setSessionUserId(SecurityContextHolder.getContext().getAuthentication().getName());
+		auditRequestDto.setSessionUserName(SecurityContextHolder.getContext().getAuthentication().getName());
+		auditRequestDto.setCreatedBy(SecurityContextHolder.getContext().getAuthentication().getName());
+		
+		//if current profile is local or dev donot call this method
+		if(Arrays.stream(env.getActiveProfiles()).anyMatch(
+				   environment -> (environment.equalsIgnoreCase("local")) ||
+						   environment.equalsIgnoreCase("test")) ) {
+			LOGGER.info("Recieved Audit : {}",auditRequestDto.toString());
+			
+		} else {
+			callAuditManager(auditRequestDto);
+		}
+
+
+	}
+
+	/**
+	 * Validate security context holder.
+	 *
+	 * @return true, if successful
+	 */
+	private boolean validateSecurityContextHolder() {
+		Predicate<SecurityContextHolder> contextPredicate = i -> SecurityContextHolder.getContext() != null;
+		Predicate<SecurityContextHolder> authPredicate = i -> SecurityContextHolder.getContext()
+				.getAuthentication() != null;
+		Predicate<SecurityContextHolder> principlePredicate = i -> SecurityContextHolder.getContext()
+				.getAuthentication().getPrincipal() != null;
+		return contextPredicate.and(authPredicate).and(principlePredicate) != null;
+
+	}
+
+	/**
+	 * Gets the server ip.
+	 *
+	 * @return the server ip
+	 */
+	public String getServerIp() {
+		try {
+			return InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			return UNKNOWN_HOST;
+		}
+	}
+
+	/**
+	 * Gets the server name.
+	 *
+	 * @return the server name
+	 */
+	public String getServerName() {
+		try {
+			return InetAddress.getLocalHost().getHostName();
+		} catch (UnknownHostException e) {
+			return UNKNOWN_HOST;
+		}
+	}
+
+	/**
+	 * To Set the Host Ip & Host Name
+	 */
+	@PostConstruct
+	public void getHostDetails() {
+		hostIpAddress = getServerIp();
+		hostName = getServerName();
+	}
+
+	/**
+	 * For Auditing Login Services
+	 * 
+	 * @param auditRequestDto
+	 * @return
+	 */
+	public void callAuditManager(AuditRequestDto auditRequestDto) {
+
+		RequestWrapper<AuditRequestDto> auditReuestWrapper = new RequestWrapper<>();
+		auditReuestWrapper.setRequest(auditRequestDto);
+		HttpEntity<RequestWrapper<AuditRequestDto>> httpEntity = new HttpEntity<>(auditReuestWrapper);
+		ResponseEntity<String> response = null;
+		try {
+			response = restTemplate.exchange(auditUrl, HttpMethod.POST, httpEntity, String.class);
+
+		} catch (HttpClientErrorException | HttpServerErrorException ex) {
+			handlException(ex);
+		}
+		String responseBody = response.getBody();
+		getAuditDetailsFromResponse(responseBody);
+
+	}
+
+	private AuditResponseDto getAuditDetailsFromResponse(String responseBody) {
+
+		List<ServiceError> validationErrorsList = null;
+		validationErrorsList = ExceptionUtils.getServiceErrorList(responseBody);
+		AuditResponseDto auditResponseDto = null;
+		if (!validationErrorsList.isEmpty()) {
+			throw new ValidationException(validationErrorsList);
+		}
+		ResponseWrapper<AuditResponseDto> responseObject = null;
+		try {
+
+			responseObject = objectMapper.readValue(responseBody,
+					new TypeReference<ResponseWrapper<AuditResponseDto>>() {
+					});
+			auditResponseDto = responseObject.getResponse();
+		} catch (IOException | NullPointerException exception) {
+			throw new MasterDataServiceException(AuditErrorCode.AUDIT_PARSE_EXCEPTION.getErrorCode(),
+					AuditErrorCode.AUDIT_PARSE_EXCEPTION.getErrorMessage());
+		}
+
+		return auditResponseDto;
+	}
+
+	private void handlException(HttpStatusCodeException ex) {
+		List<ServiceError> validationErrorsList = ExceptionUtils.getServiceErrorList(ex.getResponseBodyAsString());
+
+		if (ex.getRawStatusCode() == 401) {
+			if (!validationErrorsList.isEmpty()) {
+				throw new AuthNException(validationErrorsList);
+			} else {
+				throw new BadCredentialsException("Authentication failed from AuthManager");
+			}
+		}
+		if (ex.getRawStatusCode() == 403) {
+			if (!validationErrorsList.isEmpty()) {
+				throw new AuthZException(validationErrorsList);
+			} else {
+				throw new AccessDeniedException("Access denied from AuthManager");
+			}
+		}
+		throw new MasterDataServiceException(AuditErrorCode.AUDIT_EXCEPTION.getErrorCode(),
+				AuditErrorCode.AUDIT_EXCEPTION.getErrorMessage() + ex);
+
+	}
+
+}

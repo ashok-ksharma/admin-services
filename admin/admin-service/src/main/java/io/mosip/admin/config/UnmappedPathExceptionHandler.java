@@ -13,7 +13,7 @@ import org.springframework.web.servlet.resource.NoResourceFoundException;
 import io.mosip.admin.packetstatusupdater.exception.ApiExceptionHandler;
 import io.mosip.kernel.core.exception.ServiceError;
 import io.mosip.kernel.core.http.ResponseWrapper;
-import io.mosip.kernel.masterdata.exception.MasterDataApiExceptionHandler;
+import io.mosip.masterdata.exception.MasterDataApiExceptionHandler;
 
 /**
  * Restores each service's pre-merge response for requests that no controller maps.

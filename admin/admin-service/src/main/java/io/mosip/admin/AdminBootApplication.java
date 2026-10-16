@@ -22,7 +22,7 @@ import io.mosip.kernel.datamapper.orika.impl.DataMapperImpl;
  * Datasource auto-configuration is switched off so that no auto-configured
  * {@code DataSource} can capture generic {@code spring.datasource.*} keys. Each database
  * gets an explicitly wired configuration instead: {@code mosip_master} via
- * {@link io.mosip.admin.config.MasterDataSourceConfig}, and {@code mosip_hotlist} via its
+ * {@link io.mosip.masterdata.config.MasterDataSourceConfig}, and {@code mosip_hotlist} via its
  * own configuration once hotlist is folded in.
  * </p>
  *
@@ -56,7 +56,7 @@ import io.mosip.kernel.datamapper.orika.impl.DataMapperImpl;
 		// masterdata's own beans, plus the kernel implementations behind the SPIs it
 		// autowires: DataMapper, PublisherClient (WebSub), the machine/device/centre id
 		// generators, and ApplicantType.
-		"io.mosip.kernel.masterdata.*","io.mosip.kernel.core.datamapper.*",
+		"io.mosip.masterdata.*","io.mosip.kernel.core.datamapper.*",
 		"io.mosip.kernel.core.websub.*","io.mosip.kernel.idgenerator.*",
 		"io.mosip.kernel.websub.api.*","io.mosip.kernel.applicanttype.*",
 		"io.mosip.kernel.core.idgenerator.*","io.mosip.kernel.core.logger.config"},

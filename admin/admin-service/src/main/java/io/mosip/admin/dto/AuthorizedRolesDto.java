@@ -10,7 +10,7 @@ import java.util.List;
 
 /*
  * Renamed from "authorizedRoles" during the admin-services merge.
- * io.mosip.kernel.masterdata.config.AuthorizedRolesDto also declares
+ * io.mosip.masterdata.config.AuthorizedRolesDto also declares
  * @Component("authorizedRoles") explicitly, so one of the two had to give up the name or
  * the application would fail to start with ConflictingBeanDefinitionException.
  *

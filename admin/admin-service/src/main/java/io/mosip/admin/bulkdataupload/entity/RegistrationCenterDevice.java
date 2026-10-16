@@ -13,14 +13,14 @@ import jakarta.persistence.JoinColumns;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
-import io.mosip.kernel.masterdata.entity.id.RegistrationCenterDeviceID;
-import io.mosip.kernel.masterdata.entity.BaseEntity;
+import io.mosip.masterdata.entity.id.RegistrationCenterDeviceID;
+import io.mosip.masterdata.entity.BaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import io.mosip.kernel.masterdata.entity.Device;
-import io.mosip.kernel.masterdata.entity.RegistrationCenter;
+import io.mosip.masterdata.entity.Device;
+import io.mosip.masterdata.entity.RegistrationCenter;
 
 /**
  * 

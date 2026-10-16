@@ -1,0 +1,152 @@
+package io.mosip.masterdata.service;
+
+
+import io.mosip.kernel.core.websub.model.EventModel;
+import io.mosip.kernel.core.websub.spi.PublisherClient;
+import io.mosip.masterdata.constant.RequestErrorCode;
+import io.mosip.masterdata.constant.ZoneUserErrorCode;
+import io.mosip.masterdata.dto.ZoneUserDto;
+import io.mosip.masterdata.entity.ZoneUser;
+import io.mosip.masterdata.exception.MasterDataServiceException;
+import io.mosip.masterdata.repository.ZoneUserRepository;
+import io.mosip.masterdata.service.TemplateService;
+import io.mosip.masterdata.service.ZoneUserService;
+import io.mosip.masterdata.service.impl.ZoneServiceImpl;
+import io.mosip.masterdata.TestBootApplication;
+import io.mosip.masterdata.utils.AuditUtil;
+import io.mosip.masterdata.utils.LanguageUtils;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+
+/**
+ * 
+ * @author Nagarjuna
+ *
+ */
+@SpringBootTest(classes = TestBootApplication.class)
+@RunWith(SpringRunner.class)
+@AutoConfigureMockMvc
+public class ZoneServiceTest {
+	
+		@MockBean
+	private PublisherClient<String,EventModel,HttpHeaders> publisher;
+	
+	@MockBean
+	private TemplateService templateService;
+
+	@MockBean
+	private ZoneUserRepository zoneUserRepo;
+	
+	@Autowired
+	ZoneUserService zoneUserService;
+	
+	@MockBean
+	private AuditUtil auditUtil;
+
+	@MockBean
+	private LanguageUtils languageUtils;
+
+	@Autowired
+	private ZoneServiceImpl zoneServiceImpl;
+
+	
+	ZoneUser zoneUser = null;
+	
+	@Before
+	public void setUp() {
+		zoneUser = new ZoneUser();
+		zoneUser.setCreatedBy("system");
+		zoneUser.setIsActive(true);
+		zoneUser.setLangCode("eng");
+		zoneUser.setUserId("110124");
+		zoneUser.setZoneCode("NTH");
+		doNothing().when(auditUtil).auditRequest(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(),Mockito.anyString());
+	}
+	
+	@Test
+	public void testGetZoneUser_validId_shouldReturnUser() {
+		Mockito.when(zoneUserRepo.findByIdAndIsDeletedFalseOrIsDeletedIsNull(Mockito.anyString(),Mockito.anyString())).thenReturn(zoneUser);
+		ZoneUser response = zoneUserService.getZoneUser("110124",  "NTH");
+		assertEquals("eng", response.getLangCode());
+	}
+	
+	@Test
+	public void testGetZoneUser_invalidId_shouldReturnNull() {
+		Mockito.when(zoneUserRepo.findByIdAndIsDeletedFalseOrIsDeletedIsNull(Mockito.anyString(),Mockito.anyString())).thenReturn(null);
+		ZoneUser response = zoneUserService.getZoneUser("110124", "NTH");
+		assertEquals(null, response);
+	}
+	
+	@Test(expected = NullPointerException.class)
+	public void testZoneUserMapping_nullPointerException_throwsException() {
+		Mockito.when(zoneUserRepo.findByIdAndIsDeletedFalseOrIsDeletedIsNull(Mockito.anyString(),Mockito.anyString())).thenReturn(null);
+		Mockito.when(zoneUserRepo.findByUserId(Mockito.anyString())).thenReturn(zoneUser);
+		Mockito.when(zoneUserRepo.findZoneByUserIdActiveAndNonDeleted(Mockito.anyString())).thenReturn(null);
+		ZoneUserDto request = new ZoneUserDto();
+		request.setIsActive(true);
+		request.setLangCode("fra");
+		request.setUserId("11006");
+		request.setZoneCode("KTR");
+		try {
+			zoneUserService.createZoneUserMapping(request);
+		}catch(MasterDataServiceException ex) {
+			assertEquals(ZoneUserErrorCode.USER_MAPPING_PRSENT_IN_DB.getErrorCode(), ex.getErrorCode());
+		}
+		
+	}
+	
+	@Test
+	public void testGetZoneUsers_shouldRetrieveMultipleUsers() {
+		List<ZoneUser> zoneMappedUsers = new ArrayList<>();
+		zoneMappedUsers.add(zoneUser);
+		List<String> userIds = new ArrayList<>();
+		userIds.add("1234");
+		userIds.add("45678");
+		userIds.add("1264");
+		userIds.add("45678");
+		Mockito.when(zoneUserRepo.findByUserIds(userIds)).thenReturn(zoneMappedUsers);
+		List<ZoneUser> users = zoneUserService.getZoneUsers(userIds);
+		assertEquals("eng", users.get(0).getLangCode());
+		
+	}
+
+	@Test
+	@WithUserDetails("global-admin")
+	public void testGetZoneNameBasedOnLangCodeAndUserID_invalidUserId_throwsException() {
+		try {
+			zoneServiceImpl.getZoneNameBasedOnLangCodeAndUserID("test", "eng");
+			Assert.fail();
+		} catch (MasterDataServiceException e) {
+			Assert.assertEquals(RequestErrorCode.REQUEST_DATA_NOT_VALID.getErrorCode(),
+					e.getErrorCode());
+		}
+	}
+
+	@Test
+	@WithUserDetails("global-admin")
+	public void testGetZoneNameBasedOnLangCodeAndUserID_validUserId_returnsZoneName () {
+		when(zoneUserRepo.count()).thenReturn(0L);
+		ZoneUser zoneUser = new ZoneUser();
+		zoneUser.setUserId("global-admin");
+		zoneUser.setZoneCode("MOR");
+		when(zoneUserRepo.findZoneByUserIdNonDeleted("global-admin")).thenReturn(zoneUser);
+		zoneServiceImpl.getZoneNameBasedOnLangCodeAndUserID("global-admin", "eng");
+	}
+}

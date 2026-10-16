@@ -1,0 +1,25 @@
+package io.mosip.masterdata.dto;
+
+import jakarta.validation.constraints.NotNull;
+
+import io.mosip.masterdata.validator.StringFormatter;
+import lombok.Data;
+
+@Data
+public class ZoneUserPutDto {
+
+	@NotNull
+	@StringFormatter(min = 1, max = 36)
+	private String zoneCode;
+
+	@NotNull
+	@StringFormatter(min = 1, max = 256)
+	private String userId;
+
+	@Deprecated
+	private Boolean isActive;
+
+	@Deprecated
+	private String langCode;
+
+}
