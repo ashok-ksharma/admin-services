@@ -21,7 +21,7 @@ import org.springframework.context.annotation.*;
 // MasterDataSourceConfig, and datasource auto-configuration is excluded for the same reason.
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
-@ComponentScan(value = {"io.mosip.admin.*","io.mosip.commons.*","io.mosip.kernel.biometrics.*",
+@ComponentScan(value = {"io.mosip.admin.*","io.mosip.mergedadmin.*","io.mosip.commons.*","io.mosip.kernel.biometrics.*",
 		 "io.mosip.kernel.idvalidator.rid.*"},
 		excludeFilters = @ComponentScan.Filter(type = FilterType.ASPECTJ,
 		pattern = "io.mosip.kernel.lkeymanager.repository.*"))

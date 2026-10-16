@@ -1,4 +1,4 @@
-package io.mosip.admin.config;
+package io.mosip.mergedadmin.web;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

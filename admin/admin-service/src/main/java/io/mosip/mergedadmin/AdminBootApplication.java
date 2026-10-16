@@ -1,4 +1,4 @@
-package io.mosip.admin;
+package io.mosip.mergedadmin;
 
 import java.util.concurrent.Executor;
 
@@ -48,7 +48,7 @@ import io.mosip.kernel.datamapper.orika.impl.DataMapperImpl;
 @SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
 		DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
 @EnableAsync
-@ComponentScan(value = {"io.mosip.kernel.auth.*","io.mosip.admin.*","io.mosip.commons.*",
+@ComponentScan(value = {"io.mosip.kernel.auth.*","io.mosip.admin.*","io.mosip.mergedadmin.*","io.mosip.commons.*",
 		"${mosip.auth.adapter.impl.basepackage}", "io.mosip.kernel.idvalidator.rid.*","io.mosip.kernel.biometrics.*","io.mosip.kernel.authcodeflowproxy.*",
 		// --- masterdata -------------------------------------
 		// The eight entries below are exactly what the retired MasterDataBootApplication

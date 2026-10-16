@@ -1,4 +1,4 @@
-package io.mosip.admin;
+package io.mosip.mergedadmin;
 
 import static org.hamcrest.Matchers.endsWith;
 import static org.junit.Assert.assertEquals;
@@ -79,7 +79,7 @@ import jakarta.persistence.EntityManagerFactory;
  *
  * <p>
  * <b>Why it exists.</b> Each service keeps its own, narrower test context: admin's tests
- * boot {@link TestBootApplication} (admin packages only, with masterdata beans that admin
+ * boot {@link io.mosip.admin.TestBootApplication} (admin packages only, with masterdata beans that admin
  * code uses mocked) and masterdata's tests boot masterdata's own test application. That
  * keeps every service's tests fast and independent, but none of them proves that the
  * combined application wires together. This class is the single place that does: the real
@@ -135,11 +135,11 @@ public class FullApplicationContextTest {
 	 * replaced below); {@code AuthCodeProxyConfig} is excluded because its only bean is a
 	 * fallback {@code restTemplate} ({@code @ConditionalOnMissingBean}) that never applies in
 	 * the application, where the auth adapter registers {@code restTemplate} first; external
-	 * collaborators are mocked or stubbed as in admin's {@link TestBootApplication}.
+	 * collaborators are mocked or stubbed as in admin's {@link io.mosip.admin.TestBootApplication}.
 	 */
 	@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
 			DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
-	@ComponentScan(value = { "io.mosip.admin.*", "io.mosip.commons.*", "io.mosip.kernel.idvalidator.rid.*",
+	@ComponentScan(value = { "io.mosip.admin.*", "io.mosip.mergedadmin.*", "io.mosip.commons.*", "io.mosip.kernel.idvalidator.rid.*",
 			"io.mosip.kernel.biometrics.*", "io.mosip.kernel.authcodeflowproxy.*",
 			"io.mosip.masterdata.*", "io.mosip.kernel.core.datamapper.*", "io.mosip.kernel.core.websub.*",
 			"io.mosip.kernel.idgenerator.*", "io.mosip.kernel.websub.api.*", "io.mosip.kernel.applicanttype.*",

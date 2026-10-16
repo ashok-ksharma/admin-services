@@ -36,7 +36,7 @@
 		<!-- Main class of the merged application. Pinned explicitly so that
 		     spring-boot:repackage stays unambiguous as the other three services'
 		     boot classes are folded in and removed in steps 1-3. -->
-		<start-class>io.mosip.admin.AdminBootApplication</start-class>
+		<start-class>io.mosip.mergedadmin.AdminBootApplication</start-class>
 		<!-- Folded in from admin-parent (was the only place these were defined). -->
 		<sonar.coverage.exclusions>**/repositories/**,**/constant/**,**/config/**,**/httpfilter/**,**/cache/**,**/dto/**,**/entity/**,**/model/**,**/exception/**,**/repository/**,**/security/**,**/*Config.java,**/*BootApplication.java,**/*VertxApplication.java,**/cbeffutil/**,**/*Util.java,**/helper/beans/**,**/OptionalFilter.java,**/*Enum.java,**/validator.registereddevice/**,**/DeviceProvider*.java,**/DeviceRegister*.java,**/FoundationalTrustProvider*.java,**/GenderType*.java,**/IndividualType*.java,**/MOSIPDeviceService*.java,**/RegisteredDevice*.java,**/RegistrationCenterDeviceHistoryServiceImpl.java,**/RegistrationCenterMachineUserServiceHistoryImpl.java</sonar.coverage.exclusions>
 		<sonar.cpd.exclusions>**/dto/**,**/entity/**,**/config/**</sonar.cpd.exclusions>
