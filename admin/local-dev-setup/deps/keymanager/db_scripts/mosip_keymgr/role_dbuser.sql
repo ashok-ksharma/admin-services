@@ -1,0 +1,4 @@
+CREATE ROLE keymgruser WITH 
+	INHERIT
+	LOGIN
+	PASSWORD :dbuserpwd;

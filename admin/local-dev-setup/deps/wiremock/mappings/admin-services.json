@@ -1,0 +1,248 @@
+{
+  "mappings": [
+    {
+      "name": "auditmanager-audits",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/v1/auditmanager/audits"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "mosip.local.stub",
+          "version": "v1",
+          "responsetime": "2026-01-01T00:00:00.000Z",
+          "metadata": null,
+          "response": {
+            "status": true
+          },
+          "errors": null
+        }
+      }
+    },
+    {
+      "name": "authmanager-userdetails",
+      "request": {
+        "method": "ANY",
+        "urlPathPattern": "/v1/authmanager/userdetails.*"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "mosip.local.stub",
+          "version": "v1",
+          "responsetime": "2026-01-01T00:00:00.000Z",
+          "metadata": null,
+          "response": {
+            "mosipUserDtoList": [
+              {
+                "userId": "globaladmin",
+                "name": "globaladmin",
+                "langCode": "eng",
+                "role": "GLOBAL_ADMIN,REGISTRATION_ADMIN,ZONAL_ADMIN"
+              },
+              {
+                "userId": "masterdata-220005",
+                "name": "masterdata-220005",
+                "langCode": "eng",
+                "role": "GLOBAL_ADMIN,ID_AUTHENTICATION,REGISTRATION_ADMIN,REGISTRATION_SUPERVISOR,ZONAL_ADMIN"
+              }
+            ]
+          },
+          "errors": null
+        }
+      }
+    },
+    {
+      "name": "websub-hub",
+      "request": {
+        "method": "ANY",
+        "urlPathPattern": "/hub/?"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "text/plain"
+        },
+        "body": ""
+      }
+    },
+    {
+      "name": "regproc-workflow-search-empty-column",
+      "priority": 3,
+      "request": {
+        "method": "POST",
+        "urlPath": "/registrationprocessor/v1/workflowmanager/workflow/search",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$.request.filters[?(@.columnName == '')]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "mosip.registration.processor.workflow",
+          "version": "v1",
+          "responsetime": "2026-01-01T00:00:00.000Z",
+          "response": null,
+          "errors": [
+            {
+              "errorCode": "RPR-WAA-000",
+              "message": "Missing Request Value - columnName"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "regproc-workflow-search-invalid-pagination",
+      "priority": 3,
+      "request": {
+        "method": "POST",
+        "urlPath": "/registrationprocessor/v1/workflowmanager/workflow/search",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": "$.request.pagination[?(@.pageFetch < 1)]"
+          }
+        ]
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "mosip.registration.processor.workflow",
+          "version": "v1",
+          "responsetime": "2026-01-01T00:00:00.000Z",
+          "response": null,
+          "errors": [
+            {
+              "errorCode": "RPR-WAA-002",
+              "message": "Invalid Request Value - pagination"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "regproc-workflow-action-unknown-id",
+      "priority": 3,
+      "request": {
+        "method": "POST",
+        "urlPath": "/registrationprocessor/v1/workflowmanager/workflowaction"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "mosip.registration.processor.workflow",
+          "version": "v1",
+          "responsetime": "2026-01-01T00:00:00.000Z",
+          "response": null,
+          "errors": [
+            {
+              "errorCode": "RPR-WAA-003",
+              "message": "Workflow instance not found"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "regproc-and-packet-receiver",
+      "priority": 10,
+      "request": {
+        "method": "ANY",
+        "urlPathPattern": "/registrationprocessor/v1/.*"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "mosip.local.stub",
+          "version": "v1",
+          "responsetime": "2026-01-01T00:00:00.000Z",
+          "metadata": null,
+          "response": {},
+          "errors": null
+        }
+      }
+    },
+    {
+      "name": "idrepo-identity",
+      "priority": 10,
+      "request": {
+        "method": "ANY",
+        "urlPathPattern": "/idrepository/v1/.*"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "mosip.local.stub",
+          "version": "v1",
+          "responsetime": "2026-01-01T00:00:00.000Z",
+          "metadata": null,
+          "response": {},
+          "errors": null
+        }
+      }
+    },
+    {
+      "name": "digitalcard",
+      "priority": 10,
+      "request": {
+        "method": "ANY",
+        "urlPathPattern": "/v1/digitalcard.*"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "id": "mosip.local.stub",
+          "version": "v1",
+          "responsetime": "2026-01-01T00:00:00.000Z",
+          "metadata": null,
+          "response": {},
+          "errors": null
+        }
+      }
+    },
+    {
+      "name": "actuator-health",
+      "priority": 9,
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/.*/actuator/health"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "status": "UP"
+        }
+      }
+    }
+  ]
+}

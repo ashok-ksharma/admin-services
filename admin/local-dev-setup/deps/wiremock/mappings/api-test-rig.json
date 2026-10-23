@@ -1,0 +1,82 @@
+{
+  "mappings": [
+    {
+      "name": "gateway-masterdata",
+      "priority": 5,
+      "request": {
+        "method": "ANY",
+        "urlPathPattern": "/v1/masterdata/.*"
+      },
+      "response": {
+        "proxyBaseUrl": "http://host.docker.internal:8086"
+      }
+    },
+    {
+      "name": "gateway-admin",
+      "priority": 5,
+      "request": {
+        "method": "ANY",
+        "urlPathPattern": "/v1/admin/.*"
+      },
+      "response": {
+        "proxyBaseUrl": "http://host.docker.internal:8086"
+      }
+    },
+    {
+      "name": "keycloak-admin-users-search",
+      "request": {
+        "method": "GET",
+        "urlPathPattern": "/auth/admin/realms/mosip/users"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": []
+      }
+    },
+    {
+      "name": "keycloak-admin-users-create",
+      "request": {
+        "method": "POST",
+        "urlPathPattern": "/auth/admin/realms/mosip/users"
+      },
+      "response": {
+        "status": 409,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "errorMessage": "User exists with same username"
+        }
+      }
+    },
+    {
+      "name": "regproc-actuator-env",
+      "priority": 4,
+      "request": {
+        "method": "GET",
+        "urlPath": "/registrationprocessor/v1/registrationtransaction/actuator/env"
+      },
+      "response": {
+        "status": 200,
+        "headers": {
+          "Content-Type": "application/json"
+        },
+        "jsonBody": {
+          "propertySources": [
+            {
+              "name": "systemProperties",
+              "properties": {
+                "mosip.regproc.packet.classifier.tagging.agegroup.ranges": {
+                  "value": "{'INFANT':'0-5','MINOR':'6-17','ADULT':'18-200'}"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

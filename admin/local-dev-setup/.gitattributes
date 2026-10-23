@@ -1,0 +1,3 @@
+# Keep shell scripts LF so Git Bash / WSL on Windows can run them; batch files need CRLF for cmd.
+*.sh text eol=lf
+*.bat text eol=crlf

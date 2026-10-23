@@ -1,0 +1,3 @@
+# JWT signing key, created locally by tools/jwt on the first tokens run. Only the generated
+# deps/wiremock/mappings/keycloak-authmanager.json is committed.
+keys/jwt-signing-key.pem
