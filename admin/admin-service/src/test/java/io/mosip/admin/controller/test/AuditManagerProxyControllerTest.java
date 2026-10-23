@@ -88,7 +88,9 @@ public class AuditManagerProxyControllerTest {
 		auditManagerRequestDto.setModuleId("ADM-NAV");
 		auditManagerRequestDto.setModuleName("Navigation");
 		requestDto.setRequest(auditManagerRequestDto);
-		mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).build();
+		// Unordered: a request only uses up an expectation it matches. Earlier test classes can leave
+		// packet-upload jobs running that call the shared RestTemplate after this server is bound.
+		mockRestServiceServer = MockRestServiceServer.bindTo(restTemplate).ignoreExpectOrder(true).build();
 
 	}
 
